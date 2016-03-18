@@ -6,6 +6,13 @@ var React = require('react');
 var App = require('./components/app.js');
 
 React.render(
-  <App />,
-  document.getElementById('main')
+  <App source="//crossorigin.me/http://api.krisinformation.se/v1/feed?format=json"/>,
+  document.getElementById('msb-list')
 );
+
+
+
+// React.render(
+//   <MsbFeed source="//crossorigin.me/http://api.krisinformation.se/v1/feed?format=json" />,
+//   document.getElementById('msb-list')
+// );

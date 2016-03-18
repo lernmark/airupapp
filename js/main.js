@@ -18953,17 +18953,86 @@ var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 
 var App = React.createClass({displayName: 'App',
-    handleClick:function(){
-      AppActions.addItem('this is the item');
-    },
-    render:function(){
-      return (
-        React.DOM.div({className: "wrapper"}, 
-          React.DOM.h3({onClick: this.handleClick}, "Click this Title, then check console")
-        )
-      )
-    }
-  });
+
+  getInitialState: function() {
+    return {
+      forcasts: [],
+      pImage: []
+    };
+  },
+  
+  componentDidMount: function() {
+    var self = this;
+    navigator.geolocation.getCurrentPosition(
+      (initialPosition) => this.setState({
+        initialPosition
+      }), (error) => alert(error.message), {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 1000
+      }
+    );
+
+
+
+    this.watchID = navigator.geolocation.watchPosition((lastPosition) => {
+      this.setState({
+        lastPosition
+      });
+      var lat = Math.round(lastPosition.coords.latitude * 1000000) / 1000000;
+      var lng = Math.round(lastPosition.coords.longitude * 1000000) / 1000000;
+      var airApi = "//bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
+      //var smhiAPI = "//crossorigin.me/http://opendata-download-metfcst.smhi.se/api/category/pmp1.5g/version/1/geopoint/lat/" + lat + "/lon/" + lon + "/data.json";
+      $.ajax({
+        url: airApi,
+        success: function(data) {
+          console.log(data);
+          if (this.isMounted()) {
+            this.setState({
+              forcasts: data.zones
+            });
+          }
+        }.bind(this),
+      });
+    });
+
+
+    //https://bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/59.315782/lng/18.033371
+    $.get(this.props.source, function(result) {
+      var collection = result.Entries;
+      if (this.isMounted()) {
+        this.setState({
+          pImage: collection
+        });
+      }
+    }.bind(this));
+  },
+
+  handleClick: function() {
+    AppActions.addItem('this is the item');
+  },
+
+  render: function() {
+    var msbEntries = this.state.pImage || [];
+    var forcasts = this.state.forcasts || [];
+    //console.log("F", forcasts);
+    return (
+      React.DOM.div({className: "mdl-grid"}, 
+      forcasts.map(function(entry){
+        return React.DOM.div({className: "mdl-card mdl-cell mdl-cell--4-col mdl-shadow--4dp"}, 
+          React.DOM.div({className: "mdl-card__title  mdl-color--blue mdl-color-text--white"}, 
+            React.DOM.h2({className: "mdl-card__title-text"}, entry.title)
+          ), 
+          React.DOM.div({className: "mdl-card__supporting-text"}, 
+          	React.DOM.strong(null, "Index: "), entry.data.index
+					)
+				)
+        })
+			)
+    );
+  }
+});
+
 
 module.exports = App;
 
@@ -18997,10 +19066,16 @@ var React = require('react');
 var App = require('./components/app.js');
 
 React.render(
-  App(null),
-  document.getElementById('main')
+  App({source: "//crossorigin.me/http://api.krisinformation.se/v1/feed?format=json"}),
+  document.getElementById('msb-list')
 );
 
+
+
+// React.render(
+//   <MsbFeed source="//crossorigin.me/http://api.krisinformation.se/v1/feed?format=json" />,
+//   document.getElementById('msb-list')
+// );
 },{"./components/app.js":154,"react":152}],158:[function(require,module,exports){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;
@@ -19016,7 +19091,7 @@ var AppStore = assign({}, EventEmitter.prototype, {
 });
 
 AppDispatcher.register(function(payload){
-  console.log("PAYLOAD",payload);
+  console.log("PAYLOAD 2",payload);
   return true;
 });
 
