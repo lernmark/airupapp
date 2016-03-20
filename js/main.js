@@ -18952,6 +18952,50 @@ var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 
+
+var CardMedia = React.createClass({
+  displayName: "CardMap",
+
+  createMap: function(element) {
+    var map = L.map(element);
+    L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    return map;
+  },
+
+  setupMap: function() {
+    var defaultIdx = 0;
+    var zoom = parseInt(this.props.zoom);
+    //var coords = this.props.CapArea[defaultIdx].Coordinate.split(" ")[0];
+    //var lon = coords.split(",")[0];
+    //var lat = coords.split(",")[1];
+    
+    //lat = "59.315782";
+    //lon = "18.033371";
+    lat = this.props.position.split(",")[0];
+    lon = this.props.position.split(",")[1];
+    
+    this.map.setView([lat, lon], zoom);
+  },
+
+
+  componentDidMount: function() {
+    if (this.props.createMap) {
+      this.map = this.props.createMap(this.getDOMNode());
+    }
+    else {
+      this.map = this.createMap(this.getDOMNode());
+    }
+    this.setupMap();
+  },
+  render: function() {
+    return (React.DOM.div({className: "map mdl-card__media"}
+              
+          ))
+  }
+});
+
 var App = React.createClass({displayName: 'App',
 
   getInitialState: function() {
@@ -18960,7 +19004,7 @@ var App = React.createClass({displayName: 'App',
       pImage: []
     };
   },
-  
+
   componentDidMount: function() {
     var self = this;
     navigator.geolocation.getCurrentPosition(
@@ -19021,10 +19065,12 @@ var App = React.createClass({displayName: 'App',
       forcasts.map(function(entry){
         return React.DOM.div({className: "mdl-card mdl-cell mdl-cell--4-col mdl-shadow--4dp"}, 
           React.DOM.div({className: "mdl-card__title  mdl-color--blue mdl-color-text--white"}, 
-            React.DOM.h2({className: "mdl-card__title-text"}, entry.title)
+            entry.title
           ), 
+          CardMedia({position: entry.position, zoom: "14", title: entry.title, position: entry.position}), 
           React.DOM.div({className: "mdl-card__supporting-text"}, 
           	React.DOM.strong(null, "Index: "), entry.data.index
+          	
 					)
 				)
         })
