@@ -19026,13 +19026,14 @@ var App = React.createClass({displayName: 'App',
       var lat = Math.round(lastPosition.coords.latitude * 1000000) / 1000000;
       var lng = Math.round(lastPosition.coords.longitude * 1000000) / 1000000;
       var airApi = "//bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
-      //var smhiAPI = "//crossorigin.me/http://opendata-download-metfcst.smhi.se/api/category/pmp1.5g/version/1/geopoint/lat/" + lat + "/lon/" + lon + "/data.json";
       $.ajax({
         url: airApi,
         success: function(data) {
           console.log(data);
           if (this.isMounted()) {
             this.setState({
+              lat:lat,
+              lng:lng,
               forcasts: data.zones
             });
           }
@@ -19059,13 +19060,18 @@ var App = React.createClass({displayName: 'App',
   render: function() {
     var msbEntries = this.state.pImage || [];
     var forcasts = this.state.forcasts || [];
-    //console.log("F", forcasts);
+    var lat = this.state.lat;
+    var lng = this.state.lng;
+    var posi = lat + "," + lng;
+    
+    console.log("lat: ", this.state);
     return (
       React.DOM.div({className: "mdl-grid"}, 
+      CardMedia({position: posi, zoom: "14", title: "ZZZ"}), 
       forcasts.map(function(entry){
         return React.DOM.div({className: "mdl-card mdl-cell mdl-cell--4-col mdl-shadow--4dp"}, 
           React.DOM.div({className: "mdl-card__title  mdl-color--blue mdl-color-text--white"}, 
-            entry.title
+            React.DOM.strong(null, entry.title), React.DOM.span(null, ", "), React.DOM.span(null, entry.subtitle)
           ), 
           CardMedia({position: entry.position, zoom: "14", title: entry.title, position: entry.position}), 
           React.DOM.div({className: "mdl-card__supporting-text"}, 
