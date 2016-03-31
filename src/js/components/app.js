@@ -18,20 +18,19 @@ var CardMedia = React.createClass({
   setupMap: function() {
     var defaultIdx = 0;
     var zoom = parseInt(this.props.zoom);
-    //var coords = this.props.CapArea[defaultIdx].Coordinate.split(" ")[0];
-    //var lon = coords.split(",")[0];
-    //var lat = coords.split(",")[1];
-    
-    //lat = "59.315782";
-    //lon = "18.033371";
-    lat = this.props.position.split(",")[0];
-    lon = this.props.position.split(",")[1];
-    
-    this.map.setView([lat, lon], zoom);
+    var coords = this.props.position.split(" ")[0];
+    var lon = coords.split(",")[1];
+    var lat = coords.split(",")[0];
+    console.log("Setup map: ", lat, lon);
+    if (lat !== undefined) {
+      this.map.setView([lat, lon], zoom);      
+    }
+
   },
 
 
   componentDidMount: function() {
+    console.log("props: ", this.props);
     if (this.props.createMap) {
       this.map = this.props.createMap(this.getDOMNode());
     }
@@ -42,8 +41,7 @@ var CardMedia = React.createClass({
   },
   render: function() {
     return (<div className="map mdl-card__media">
-              
-          </div>)
+              </div>)
   }
 });
 
@@ -57,6 +55,22 @@ var App = React.createClass({
   },
 
   componentDidMount: function() {
+    /*
+    var self = this;
+    navigator.geolocation.getCurrentPosition(function (initialPosition) {
+      console.log("zxczxc");
+      return undefined.setState({
+        initialPosition: initialPosition
+      });
+    }, function (error) {
+      return alert(error.message);
+    }, {
+      enableHighAccuracy: true,
+      timeout: 20000,
+      maximumAge: 1000
+    });
+    */
+/*    
     var self = this;
     navigator.geolocation.getCurrentPosition(
       (initialPosition) => this.setState({
@@ -66,8 +80,8 @@ var App = React.createClass({
         timeout: 20000,
         maximumAge: 1000
       }
-    );
-
+    );    
+*/
 
 
     this.watchID = navigator.geolocation.watchPosition((lastPosition) => {
@@ -76,11 +90,14 @@ var App = React.createClass({
       });
       var lat = Math.round(lastPosition.coords.latitude * 1000000) / 1000000;
       var lng = Math.round(lastPosition.coords.longitude * 1000000) / 1000000;
+      lat = "59.315782";
+      lng = "16.033371";
+
       var airApi = "//bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
       $.ajax({
         url: airApi,
         success: function(data) {
-          console.log(data);
+          console.log("ajax data", data);
           if (this.isMounted()) {
             this.setState({
               lat:lat,
@@ -92,7 +109,29 @@ var App = React.createClass({
       });
     });
 
-
+/*
+    this.watchID = navigator.geolocation.watchPosition(function (lastPosition) {
+      this.setState({
+        lastPosition: lastPosition
+      });
+      var lat = Math.round(lastPosition.coords.latitude * 1000000) / 1000000;
+      var lng = Math.round(lastPosition.coords.longitude * 1000000) / 1000000;
+      var airApi = "//bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
+      $.ajax({
+        url: airApi,
+        success: function (data) {
+          console.log("data",data);
+          if (this.isMounted()) {
+            this.setState({
+              lat: lat,
+              lng: lng,
+              forcasts: data.zones
+            });
+          }
+        }.bind(this)
+      });
+    });
+*/
     //https://bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/59.315782/lng/18.033371
     $.get(this.props.source, function(result) {
       var collection = result.Entries;
@@ -114,25 +153,44 @@ var App = React.createClass({
     var lat = this.state.lat;
     var lng = this.state.lng;
     var posi = lat + "," + lng;
+    var title = "Dummy";
     
-    console.log("lat: ", this.state);
+    console.log("lat lng: ", lat, lng, forcasts);
+    if (forcasts.length > 0) {
     return (
       <div className="mdl-grid">
-      <CardMedia position={posi} zoom="14" title="ZZZ" />
+      
       {forcasts.map(function(entry){
         return <div className='mdl-card mdl-cell mdl-cell--4-col mdl-shadow--4dp'>
           <div className='mdl-card__title  mdl-color--blue mdl-color-text--white'>
             <strong>{entry.title}</strong><span>,&nbsp;</span><span>{entry.subtitle}</span>
           </div>
-          <CardMedia position={entry.position} zoom="14" title={entry.title} position={entry.position}/>
+          <CardMedia position={posi} zoom="14" title={entry.title}/>
           <div className="mdl-card__supporting-text">
-          	<strong>Index: </strong>{entry.data.index}
+          	<strong>Index: </strong>{entry.data.index}<br/>
+          	<strong>Posi: </strong>{posi}<br/>
+          	<strong>Position: </strong>{entry.position}
           	
 					</div>
 				</div>
         })}
 			</div>
     );
+  } else {
+    return (
+        <div className='mdl-card mdl-cell mdl-cell--4-col mdl-shadow--4dp'>
+          <div className='mdl-card__title  mdl-color--blue mdl-color-text--white'>
+            <strong>TITLE</strong><span>,&nbsp;</span><span>SUBTITLE</span>
+          </div>
+          <CardMedia position={posi} zoom="14" title={title}/>
+          <div className="mdl-card__supporting-text">
+          
+          	
+					</div>
+				</div>      
+    );
+    
+  }
   }
 });
 
