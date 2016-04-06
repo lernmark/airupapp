@@ -1,7 +1,7 @@
-## Airup web app
+# Airup web app
 
 Simple web-app based on mdl (http://getmdl.io).
 Deployed in appengine at: https://airup-app.appspot.com
 
-# Deploy
+## Deploy
 gcloud preview app deploy app.yaml 
