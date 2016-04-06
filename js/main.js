@@ -18971,15 +18971,16 @@ var CardMedia = React.createClass({
     var lon = coords.split(",")[1];
     var lat = coords.split(",")[0];
     console.log("Setup map: ", lat, lon);
-    if (lat !== undefined) {
-      this.map.setView([lat, lon], zoom);      
+    if (lat !== "undefined") {
+      console.log(lat);
+      this.map.setView([lat, lon], zoom);
     }
 
   },
 
 
   componentDidMount: function() {
-    console.log("props: ", this.props);
+    console.log("props: ", this.props.position.lat);
     if (this.props.createMap) {
       this.map = this.props.createMap(this.getDOMNode());
     }
@@ -19019,7 +19020,7 @@ var App = React.createClass({displayName: 'App',
       maximumAge: 1000
     });
     */
-/*    
+/*
     var self = this;
     navigator.geolocation.getCurrentPosition(
       (initialPosition) => this.setState({
@@ -19029,7 +19030,7 @@ var App = React.createClass({displayName: 'App',
         timeout: 20000,
         maximumAge: 1000
       }
-    );    
+    );
 */
 
 
@@ -19039,10 +19040,10 @@ var App = React.createClass({displayName: 'App',
       });
       var lat = Math.round(lastPosition.coords.latitude * 1000000) / 1000000;
       var lng = Math.round(lastPosition.coords.longitude * 1000000) / 1000000;
-      lat = "59.315782";
-      lng = "16.033371";
+      //lat = "59.315782";
+      //lng = "16.033371";
 
-      var airApi = "//bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
+      var airApi = "https://bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
       $.ajax({
         url: airApi,
         success: function(data) {
@@ -19102,13 +19103,13 @@ var App = React.createClass({displayName: 'App',
     var lat = this.state.lat;
     var lng = this.state.lng;
     var posi = lat + "," + lng;
-    var title = "Dummy";
-    
-    console.log("lat lng: ", lat, lng, forcasts);
+    var title = "No air quality data available";
+
+    console.log("lat lng: ", posi, forcasts);
     if (forcasts.length > 0) {
     return (
       React.DOM.div({className: "mdl-grid"}, 
-      
+
       forcasts.map(function(entry){
         return React.DOM.div({className: "mdl-card mdl-cell mdl-cell--4-col mdl-shadow--4dp"}, 
           React.DOM.div({className: "mdl-card__title  mdl-color--blue mdl-color-text--white"}, 
@@ -19117,9 +19118,7 @@ var App = React.createClass({displayName: 'App',
           CardMedia({position: posi, zoom: "14", title: entry.title}), 
           React.DOM.div({className: "mdl-card__supporting-text"}, 
           	React.DOM.strong(null, "Index: "), entry.data.index, React.DOM.br(null), 
-          	React.DOM.strong(null, "Posi: "), posi, React.DOM.br(null), 
-          	React.DOM.strong(null, "Position: "), entry.position
-          	
+          	React.DOM.strong(null, "Position: "), posi
 					)
 				)
         })
@@ -19129,16 +19128,16 @@ var App = React.createClass({displayName: 'App',
     return (
         React.DOM.div({className: "mdl-card mdl-cell mdl-cell--4-col mdl-shadow--4dp"}, 
           React.DOM.div({className: "mdl-card__title  mdl-color--blue mdl-color-text--white"}, 
-            React.DOM.strong(null, "TITLE"), React.DOM.span(null, ", "), React.DOM.span(null, "SUBTITLE")
+            React.DOM.strong(null, "No air quality data available"), React.DOM.span(null, ", "), React.DOM.span(null)
           ), 
           CardMedia({position: posi, zoom: "14", title: title}), 
           React.DOM.div({className: "mdl-card__supporting-text"}
-          
-          	
+
+
 					)
-				)      
+				)
     );
-    
+
   }
   }
 });
