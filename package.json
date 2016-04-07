@@ -6,6 +6,25 @@
   "repository": "https://github.com/lernmark/airupapp",
   "readme": "https://github.com/lernmark/airupapp/README.md",
   "license": "UNLICENSED",
+  "scripts": {
+    "start": "node app.js",
+    "monitor": "nodemon app.js",
+    "deploy": "gcloud preview app deploy app.yaml",
+    "lint": "jshint --exclude-path=../.gitignore .",
+    "mocha": "mocha test/index.js -t 30000",
+    "test": "npm run lint && npm run mocha"
+  },
+  "author": "Airup",
+  "contributors": [
+    {
+      "name": "Paul Lernmark",
+      "email": "paul@lernmark.net"
+    }
+  ],
+  "dependencies": {
+    "express": "^4.13.4",
+    "body-parser": "^1.x.x"
+  },
   "devDependencies": {
     "es6-promise": "^1.0.0",
     "flux": "^2.0.1",
@@ -19,6 +38,12 @@
     "jshint": "^2.9.1",
     "object-assign": "^1.0.0",
     "react": "^0.12.2",
-    "reactify": "^0.13.1"
+    "reactify": "^0.13.1",
+    "jshint": "^2.9.1",
+    "mocha": "^2.4.5",
+    "supertest": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=0.12.7"
   }
 }

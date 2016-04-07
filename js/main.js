@@ -18948,6 +18948,7 @@ module.exports = AppActions
 
 },{"../constants/AppConstants":155,"../dispatcher/AppDispatcher":156}],154:[function(require,module,exports){
 /** @jsx React.DOM */
+
 var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
@@ -19180,11 +19181,11 @@ React.render(
 );
 
 
-
 // React.render(
 //   <MsbFeed source="//crossorigin.me/http://api.krisinformation.se/v1/feed?format=json" />,
 //   document.getElementById('msb-list')
 // );
+
 },{"./components/app.js":154,"react":152}],158:[function(require,module,exports){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var EventEmitter = require('events').EventEmitter;

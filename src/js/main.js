@@ -11,7 +11,6 @@ React.render(
 );
 
 
-
 // React.render(
 //   <MsbFeed source="//crossorigin.me/http://api.krisinformation.se/v1/feed?format=json" />,
 //   document.getElementById('msb-list')

@@ -1,54 +1,21 @@
-# This file specifies your Python application's runtime configuration
-# including URL routing, versions, static file uploads, etc. See
-# https://developers.google.com/appengine/docs/python/config/appconfig
-# for details.
-application: airup-app
-version: 2
-runtime: python27
-api_version: 1
-threadsafe: yes
+#	Copyright 2015-2016, Google, Inc.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# [START runtime]
+runtime: nodejs
+vm: true
+# [END runtime]
 
-# Handlers define how to route requests to your application.
-handlers:
-
-# App Engine serves and caches static files contained in the listed directories
-# (and subdirectories). Uncomment and set the directory as needed.
-#- url: /client
-#  static_dir: client
-
-# This handler tells app engine how to route requests to a WSGI application.
-# The script value is in the format <path.to.module>.<wsgi_application>
-# where <wsgi_application> is a WSGI application object.
-- url: .*  # This regex directs all routes to main.app
-  script: main.app
-
-# Third party libraries that are included in the App Engine SDK must be listed
-# here if you want to use them.  See
-# https://developers.google.com/appengine/docs/python/tools/libraries27 for
-# a list of libraries included in the SDK.  Third party libs that are *not* part
-# of the App Engine SDK don't need to be listed here, instead add them to your
-# project directory, either as a git submodule or as a plain subdirectory.
-# TODO: List any other App Engine SDK libs you may need here.
-#libraries:
-#- name: jinja2
-#  version: latest
+# Temporary setting to keep gcloud from uploading node_modules
 skip_files:
-- ^(.*/)?app\.yaml
-- ^(.*/)?app\.yml
-- ^(.*/)?#.*#
-- ^(.*/)?.*~
-- ^(.*/)?.*\.py[co]
-- ^(.*/)?.*/RCS/.*
-- ^(.*/)?\..*
-- ^(.*/)?tests$
-- ^(.*/)?test$
-- ^test/(.*/)?
-- ^COPYING.LESSER
-- ^README\..*
-- \.gitignore
-- ^\.git/.*
-- \.*\.lint$
-- ^fabfile\.py
-- ^testrunner\.py
-- ^grunt\.js
-- ^node_modules/(.*/)?
+ - ^node_modules$

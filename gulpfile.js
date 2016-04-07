@@ -9,12 +9,17 @@ gulp.task('browserify', function() {
       .pipe(gulp.dest('js'));
 });
 
-gulp.task('copy', function() {
+gulp.task('copy-html', function() {
     return gulp.src('src/index.html')
-      .pipe(gulp.dest('templates'));
+      .pipe(gulp.dest('.'));
 });
 
-gulp.task('default',['browserify', 'copy']);
+gulp.task('copy-icons', function() {
+    return gulp.src('src/favicons/*.*')
+      .pipe(gulp.dest('favicons'));
+});
+
+gulp.task('default',['browserify', 'copy-html', 'copy-icons']);
 
 gulp.task('watch', function() {
     var watcher = gulp.watch('src/**/*.*', ['default']);
