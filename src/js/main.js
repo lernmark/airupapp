@@ -6,7 +6,7 @@ var React = require('react');
 var App = require('./components/app.js');
 
 React.render(
-  <App source="//crossorigin.me/http://api.krisinformation.se/v1/feed?format=json"/>,
+  <App />,
   document.getElementById('msb-list')
 );
 

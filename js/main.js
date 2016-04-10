@@ -18954,9 +18954,8 @@ var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 
 
-var CardMedia = React.createClass({
+var CardMap = React.createClass({
   displayName: "CardMap",
-
   createMap: function(element) {
     var map = L.map(element);
     L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -18976,9 +18975,7 @@ var CardMedia = React.createClass({
       console.log(lat);
       this.map.setView([lat, lon], zoom);
     }
-
   },
-
 
   componentDidMount: function() {
     console.log("props: ", this.props.position.lat);
@@ -19006,34 +19003,6 @@ var App = React.createClass({displayName: 'App',
   },
 
   componentDidMount: function() {
-    /*
-    var self = this;
-    navigator.geolocation.getCurrentPosition(function (initialPosition) {
-      console.log("zxczxc");
-      return undefined.setState({
-        initialPosition: initialPosition
-      });
-    }, function (error) {
-      return alert(error.message);
-    }, {
-      enableHighAccuracy: true,
-      timeout: 20000,
-      maximumAge: 1000
-    });
-    */
-/*
-    var self = this;
-    navigator.geolocation.getCurrentPosition(
-      (initialPosition) => this.setState({
-        initialPosition
-      }), (error) => alert(error.message), {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 1000
-      }
-    );
-*/
-
 
     this.watchID = navigator.geolocation.watchPosition((lastPosition) => {
       this.setState({
@@ -19116,7 +19085,7 @@ var App = React.createClass({displayName: 'App',
           React.DOM.div({className: "mdl-card__title  mdl-color--blue mdl-color-text--white"}, 
             React.DOM.strong(null, entry.title), React.DOM.span(null, ", "), React.DOM.span(null, entry.subtitle)
           ), 
-          CardMedia({position: posi, zoom: "14", title: entry.title}), 
+          CardMap({position: posi, zoom: "14", title: entry.title}), 
           React.DOM.div({className: "mdl-card__supporting-text"}, 
           	React.DOM.strong(null, "Index: "), entry.data.index, React.DOM.br(null), 
           	React.DOM.strong(null, "Position: "), posi
@@ -19131,7 +19100,7 @@ var App = React.createClass({displayName: 'App',
           React.DOM.div({className: "mdl-card__title  mdl-color--blue mdl-color-text--white"}, 
             React.DOM.strong(null, "No air quality data available"), React.DOM.span(null, ", "), React.DOM.span(null)
           ), 
-          CardMedia({position: posi, zoom: "14", title: title}), 
+          CardMap({position: posi, zoom: "14", title: title}), 
           React.DOM.div({className: "mdl-card__supporting-text"}
 
 
@@ -19176,7 +19145,7 @@ var React = require('react');
 var App = require('./components/app.js');
 
 React.render(
-  App({source: "//crossorigin.me/http://api.krisinformation.se/v1/feed?format=json"}),
+  App(null),
   document.getElementById('msb-list')
 );
 

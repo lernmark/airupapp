@@ -5,9 +5,8 @@ var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 
 
-var CardMedia = React.createClass({
+var CardMap = React.createClass({
   displayName: "CardMap",
-
   createMap: function(element) {
     var map = L.map(element);
     L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -27,9 +26,7 @@ var CardMedia = React.createClass({
       console.log(lat);
       this.map.setView([lat, lon], zoom);
     }
-
   },
-
 
   componentDidMount: function() {
     console.log("props: ", this.props.position.lat);
@@ -57,34 +54,6 @@ var App = React.createClass({
   },
 
   componentDidMount: function() {
-    /*
-    var self = this;
-    navigator.geolocation.getCurrentPosition(function (initialPosition) {
-      console.log("zxczxc");
-      return undefined.setState({
-        initialPosition: initialPosition
-      });
-    }, function (error) {
-      return alert(error.message);
-    }, {
-      enableHighAccuracy: true,
-      timeout: 20000,
-      maximumAge: 1000
-    });
-    */
-/*
-    var self = this;
-    navigator.geolocation.getCurrentPosition(
-      (initialPosition) => this.setState({
-        initialPosition
-      }), (error) => alert(error.message), {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 1000
-      }
-    );
-*/
-
 
     this.watchID = navigator.geolocation.watchPosition((lastPosition) => {
       this.setState({
@@ -167,7 +136,7 @@ var App = React.createClass({
           <div className='mdl-card__title  mdl-color--blue mdl-color-text--white'>
             <strong>{entry.title}</strong><span>,&nbsp;</span><span>{entry.subtitle}</span>
           </div>
-          <CardMedia position={posi} zoom="14" title={entry.title}/>
+          <CardMap position={posi} zoom="14" title={entry.title}/>
           <div className="mdl-card__supporting-text">
           	<strong>Index: </strong>{entry.data.index}<br/>
           	<strong>Position: </strong>{posi}
@@ -182,7 +151,7 @@ var App = React.createClass({
           <div className='mdl-card__title  mdl-color--blue mdl-color-text--white'>
             <strong>No air quality data available</strong><span>,&nbsp;</span><span></span>
           </div>
-          <CardMedia position={posi} zoom="14" title={title}/>
+          <CardMap position={posi} zoom="14" title={title}/>
           <div className="mdl-card__supporting-text">
 
 

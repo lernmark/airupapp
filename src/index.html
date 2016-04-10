@@ -41,7 +41,7 @@
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css">
   <style type="text/css">
     .map {
-      height:200px;
+      height:calc(60vh);
     }
   </style>
 </head>
@@ -53,14 +53,15 @@
       <div class="mdl-layout__header-row">
         <!-- Title -->
         <span class="mdl-layout-title">
-            Airup.
+            Airup
           </span>
         <div class="mdl-layout-spacer"></div>
       </div>
     </header>
-    <div class="mdl-layout__drawer">
+    <div class="mdl-layout__drawer" id="drawer">
       <span class="mdl-layout-title">About airup</span>
       <nav class="mdl-navigation">
+        <!-- <h3 onClick={this.handleClick}>REACT</h3> -->
         <a class="mdl-navigation__link" href="//airup.me" target="_blank">airup.me</a>
         <div id="main" class="container"></div>
 
