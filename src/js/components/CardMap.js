@@ -54,7 +54,6 @@ var App = React.createClass({
   },
 
   componentDidMount: function() {
-
     this.watchID = navigator.geolocation.watchPosition((lastPosition) => {
       this.setState({
         lastPosition

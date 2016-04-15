@@ -18932,11 +18932,29 @@ module.exports = warning;
 module.exports = require('./lib/React');
 
 },{"./lib/React":34}],153:[function(require,module,exports){
+/*
+AppAction används för att hantera event och skicka dem till dispatcher
+*/
+
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var AppConstants = require('../constants/AppConstants');
 
 var AppActions = {
+
+  /**
+   * @param  {string} text
+   */
+  insertMapCard: function(coords, text) {
+    console.log("add map", coords, text);
+    AppDispatcher.dispatch({
+      actionType: AppConstants.ADD_MAP,
+      coords: coords,
+      text: text
+    });
+  },
+
   addItem: function(item){
+    console.log("add item");
     AppDispatcher.handleViewAction({
       actionType:AppConstants.ADD_ITEM,
       item: item
@@ -18946,7 +18964,78 @@ var AppActions = {
 
 module.exports = AppActions
 
-},{"../constants/AppConstants":155,"../dispatcher/AppDispatcher":156}],154:[function(require,module,exports){
+},{"../constants/AppConstants":158,"../dispatcher/AppDispatcher":159}],154:[function(require,module,exports){
+/** @jsx React.DOM */
+
+// var Header = require('./Header');
+var Navigation = require('./Navigation');
+var MainSection = require('./MainSection');
+var CardMap = require('./CardMap');
+var React = require('react');
+var AppActions = require('../actions/AppActions');
+var AppStore = require('../stores/AppStore');
+
+
+function getAppState() {
+  return {
+    allCards: AppStore.getAll()
+  };
+}
+
+function getCards() {
+  return {
+    //allCards: AppStore.getAll()
+    allCards: {
+      coords:"59.311758,18.066317",
+      text:"Hornstull"
+    }
+  };
+}
+
+var Airupapp = React.createClass({displayName: 'Airupapp',
+
+  getInitialState: function() {
+    //TODO: Här bör min nuvarande location beräknas. Inte i CardMap
+    AppActions.insertMapCard('59.002,18.444', 'Hornstull2');
+    return getAppState();
+  },
+
+  componentDidMount: function() {
+    // Load initial card.
+    //AppActions.insertMapCard('59.002,18.444', 'Hornstull');
+  },
+  render: function() {
+
+    return (
+      React.DOM.div({className: "mdl-layout mdl-js-layout mdl-layout--fixed-header"}, 
+          React.DOM.header({className: "mdl-layout__header mdl-layout__header--waterfall"}, 
+            React.DOM.div({className: "mdl-layout__header-row"}, 
+              React.DOM.span({className: "mdl-layout-title"}, 
+                  "Airup"
+                ), 
+              React.DOM.div({className: "mdl-layout-spacer"})
+            )
+          ), 
+          Navigation(null), 
+
+          React.DOM.main({className: "mdl-layout__content", id: "airup-map"}, 
+          MainSection({allCards: this.state.allCards})
+          )
+      )
+      )
+  },
+
+  _onChange: function() {
+    this.setState({
+      allCards:{}
+    });
+  }
+
+});
+
+module.exports = Airupapp;
+
+},{"../actions/AppActions":153,"../stores/AppStore":161,"./CardMap":155,"./MainSection":156,"./Navigation":157,"react":152}],155:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require('react');
@@ -19003,7 +19092,6 @@ var App = React.createClass({displayName: 'App',
   },
 
   componentDidMount: function() {
-
     this.watchID = navigator.geolocation.watchPosition((lastPosition) => {
       this.setState({
         lastPosition
@@ -19115,18 +19203,115 @@ var App = React.createClass({displayName: 'App',
 
 module.exports = App;
 
-},{"../actions/AppActions":153,"../stores/AppStore":158,"react":152}],155:[function(require,module,exports){
+},{"../actions/AppActions":153,"../stores/AppStore":161,"react":152}],156:[function(require,module,exports){
+/** @jsx React.DOM */
+
+/**
+ * Copyright (c) 2014-2015, Facebook, Inc.
+ * All rights reserved.
+ *
+ * This source code is licensed under the BSD-style license found in the
+ * LICENSE file in the root directory of this source tree. An additional grant
+ * of patent rights can be found in the PATENTS file in the same directory.
+ */
+
+var React = require('react');
+var ReactPropTypes = React.PropTypes;
+var TodoActions = require('../actions/AppActions');
+var CardMap = require('./CardMap');
+// var TodoItem = require('./TodoItem.react');
+
+var MainSection = React.createClass({displayName: 'MainSection',
+
+  propTypes: {
+    allCards: ReactPropTypes.object.isRequired
+  },
+
+  /**
+   * @return {object}
+   */
+  render: function() {
+    console.log("this.props.allCards", this.props.allCards)
+    // This section should be hidden by default
+    // and shown when there are todos.
+    if (Object.keys(this.props.allCards).length < 1) {
+      //return null;
+    }
+
+    var allCards = this.props.allCards;
+    var cards = [];
+    console.log("allCards", allCards);
+
+    for (var key in allCards) {
+      cards.push(CardMap({key: key, card: allCards[key]}));
+    }
+    return (
+      React.DOM.div(null, cards)
+    );
+  },
+
+  /**
+   * Event handler to mark all TODOs as complete
+   */
+  _onToggleCompleteAll: function() {
+    //TodoActions.toggleCompleteAll();
+  }
+
+});
+
+module.exports = MainSection;
+
+},{"../actions/AppActions":153,"./CardMap":155,"react":152}],157:[function(require,module,exports){
+/** @jsx React.DOM */
+
+var React = require('react');
+var AppActions = require('../actions/AppActions');
+var AppStore = require('../stores/AppStore');
+
+
+var Navigation = React.createClass({displayName: 'Navigation',
+  /**
+   * @return {object}
+   */
+
+   handleClick:function(){
+     AppActions.insertMapCard('59.002,18.444', 'Hornstull');
+   },
+  render: function() {
+
+  	return (
+      React.DOM.div({className: "mdl-layout__drawer"}, 
+        React.DOM.span({className: "mdl-layout-title"}, "About airup"), 
+        React.DOM.nav({className: "mdl-navigation", id: "airup-navigation"}, 
+
+        React.DOM.a({className: "mdl-navigation__link", href: "//airup.me", target: "_blank"}, "airup.me"), 
+        React.DOM.a({className: "mdl-navigation__link", onClick: this.handleClick, target: "_blank", href: ""}, "Hornstull")
+
+        )
+      )
+    );
+  },
+
+
+});
+
+module.exports = Navigation;
+
+},{"../actions/AppActions":153,"../stores/AppStore":161,"react":152}],158:[function(require,module,exports){
 module.exports = {
+  ADD_MAP: 'ADD_MAP',
   ADD_ITEM: 'ADD_ITEM',
   REMOVE_ITEM: 'REMOVE_ITEM'
 };
 
-},{}],156:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 var Dispatcher = require('flux').Dispatcher;
 var assign = require('object-assign');
 
 var AppDispatcher = assign(new Dispatcher(), {
   handleViewAction: function(action) {
+    console.log("Action dispatched", action);
+
     this.dispatch({
       source: 'VIEW_ACTION',
       action: action
@@ -19136,17 +19321,17 @@ var AppDispatcher = assign(new Dispatcher(), {
 
 module.exports = AppDispatcher;
 
-},{"flux":1,"object-assign":6}],157:[function(require,module,exports){
+},{"flux":1,"object-assign":6}],160:[function(require,module,exports){
 /** @jsx React.DOM */
 var React = require('react');
 
 // Not ideal to use createFactory, but don't know how to use JSX to solve this
 // Posted question at: https://gist.github.com/sebmarkbage/ae327f2eda03bf165261
-var App = require('./components/app.js');
+var Airupapp = require('./components/Airupapp.js');
 
 React.render(
-  App(null),
-  document.getElementById('msb-list')
+  Airupapp(null),
+  document.getElementById('airup-map')
 );
 
 
@@ -19155,25 +19340,64 @@ React.render(
 //   document.getElementById('msb-list')
 // );
 
-},{"./components/app.js":154,"react":152}],158:[function(require,module,exports){
+},{"./components/Airupapp.js":154,"react":152}],161:[function(require,module,exports){
+/*
+AppStore lyssnar på meddelanden från dispatchern
+*/
 var AppDispatcher = require('../dispatcher/AppDispatcher');
+var AppConstants = require('../constants/AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 
-
 var CHANGE_EVENT = 'change';
+var _cards = {};
+
+/**
+ * Create a CARD item.
+ * @param  {coords} text The long/lat of the CARD Map item
+ */
+function create(coords, text) {
+
+  var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+  _cards[id] = {
+    id: id,
+    coords: coords,
+    text: text
+  };
+}
 
 var AppStore = assign({}, EventEmitter.prototype, {
+
+  getAll: function() {
+    console.log("GETALL", _cards);
+    return _cards;
+    // return [{
+    //   coords:"59.311758,18.066317",
+    //   text:"Hornstull"
+    // }];
+  },
   emitChange: function() {
+    console.log("Emit",this);
     this.emit(CHANGE_EVENT);
   }
 });
 
+// Lyssna på dispatchern
 AppDispatcher.register(function(payload){
   console.log("PAYLOAD 2",payload);
-  return true;
+  switch(payload.actionType) {
+    case AppConstants.ADD_MAP:
+      coords = payload.coords.trim();
+      text = payload.text.trim();
+      if (coords !== '') {
+        create(coords, text);
+        AppStore.emitChange();
+      }
+      break;
+  }
+  //return true;
 });
 
 module.exports = AppStore;
 
-},{"../dispatcher/AppDispatcher":156,"events":4,"object-assign":6}]},{},[157])
+},{"../constants/AppConstants":158,"../dispatcher/AppDispatcher":159,"events":4,"object-assign":6}]},{},[160])
