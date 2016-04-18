@@ -17,13 +17,13 @@ var Navigation = React.createClass({
 
   	return (
       <div className="mdl-layout__drawer">
-        <span className="mdl-layout-title">About airup</span>
-        <nav className="mdl-navigation" id="airup-navigation">
+        <span className="mdl-layout-title">About Airup</span>
+          <nav className="mdl-navigation" id="airup-navigation">
 
-        <a className="mdl-navigation__link" href="//airup.me" target="_blank">airup.me</a>
-        <a className="mdl-navigation__link" onClick={this.handleClick} target="_blank" href="">Hornstull</a>
+          <a className="mdl-navigation__link" href="//airup.me" target="_blank">airup.me</a>
+          <a className="mdl-navigation__link" onClick={this.handleClick} href="">Hornstull</a>
 
-        </nav>
+          </nav>
       </div>
     );
   },
