@@ -131,8 +131,8 @@ var App = React.createClass({
       <div className="mdl-grid">
 
       {forcasts.map(function(entry){
-        return <div className='mdl-card mdl-cell mdl-cell--4-col mdl-shadow--4dp'>
-          <div className='mdl-card__title  mdl-color--blue mdl-color-text--white'>
+        return <div className='mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop'>
+          <div className='mdl-card__title mdl-color-text--blue-grey '>
             <strong>{entry.title}</strong><span>,&nbsp;</span><span>{entry.subtitle}</span>
           </div>
           <CardMap position={posi} zoom="14" title={entry.title}/>
@@ -146,9 +146,9 @@ var App = React.createClass({
     );
   } else {
     return (
-        <div className='mdl-card mdl-cell mdl-cell--4-col mdl-shadow--4dp'>
-          <div className='mdl-card__title  mdl-color--blue mdl-color-text--white'>
-            <strong>No air quality data available</strong><span>,&nbsp;</span><span></span>
+        <div className='mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop'>
+          <div className='mdl-card__title mdl-color-text--blue-grey'>
+            <strong>No air quality data available</strong>
           </div>
           <CardMap position={posi} zoom="14" title={title}/>
           <div className="mdl-card__supporting-text">
