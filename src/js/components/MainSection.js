@@ -12,7 +12,7 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var TodoActions = require('../actions/AppActions');
-var CardMap = require('./CardMap');
+var Card = require('./Card');
 // var TodoItem = require('./TodoItem.react');
 
 var MainSection = React.createClass({
@@ -25,7 +25,7 @@ var MainSection = React.createClass({
    * @return {object}
    */
   render: function() {
-    console.log("this.props.allCards", this.props.allCards)
+    console.log("MainSection: render this.props.allCards", this.props.allCards)
     // This section should be hidden by default
     // and shown when there are todos.
     if (Object.keys(this.props.allCards).length < 1) {
@@ -34,10 +34,10 @@ var MainSection = React.createClass({
 
     var allCards = this.props.allCards;
     var cards = [];
-    console.log("allCards", allCards);
 
     for (var key in allCards) {
-      cards.push(<CardMap key={key} card={allCards[key]} />);
+      console.log("MainSection: card", allCards[key]);
+      cards.unshift(<Card key={key} card={allCards[key]} />);
     }
     return (
       <div>{cards}</div>

@@ -3,7 +3,6 @@
 // var Header = require('./Header');
 var Navigation = require('./Navigation');
 var MainSection = require('./MainSection');
-var CardMap = require('./CardMap');
 var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
@@ -15,27 +14,19 @@ function getAppState() {
   };
 }
 
-function getCards() {
-  return {
-    //allCards: AppStore.getAll()
-    allCards: {
-      coords:"59.311758,18.066317",
-      text:"Hornstull"
-    }
-  };
-}
-
 var Airupapp = React.createClass({
 
   getInitialState: function() {
-    //TODO: Här bör min nuvarande location beräknas. Inte i CardMap
-    AppActions.insertMapCard('59.002,18.444', 'Hornstull2');
+    //TODO: Här bör min nuvarande location beräknas. Inte i Card
+    AppActions.insertInfoCard("data", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
     return getAppState();
   },
 
   componentDidMount: function() {
-    // Load initial card.
-    //AppActions.insertMapCard('59.002,18.444', 'Hornstull');
+    AppStore.addChangeListener(this._onChange);
+  },
+  componentWillUnmount: function() {
+    AppStore.removeChangeListener(this._onChange);
   },
   render: function() {
 
@@ -59,9 +50,8 @@ var Airupapp = React.createClass({
   },
 
   _onChange: function() {
-    this.setState({
-      allCards:{}
-    });
+    console.log("Airupapp: Now we will change....",this);
+    this.setState(getAppState());
   }
 
 });

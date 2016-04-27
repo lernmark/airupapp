@@ -10,22 +10,28 @@ var AppActions = {
   /**
    * @param  {string} text
    */
-  insertMapCard: function(coords, text) {
-    console.log("add map", coords, text);
+  insertMapCard: function(title, text, coords) {
+    console.log("AppAction: insertMapCard. Lets dispatch it: ", title, text, coords);
     AppDispatcher.dispatch({
       actionType: AppConstants.ADD_MAP,
       coords: coords,
+      title: title,
       text: text
     });
   },
 
-  addItem: function(item){
-    console.log("add item");
-    AppDispatcher.handleViewAction({
-      actionType:AppConstants.ADD_ITEM,
-      item: item
-    })
+  /**
+   * @param  {string} text
+   */
+  insertInfoCard: function(title, text) {
+    console.log("AppAction: insertInfoCard. Lets dispatch it: ", title, text);
+    AppDispatcher.dispatch({
+      actionType: AppConstants.ADD_INFO,
+      title: title,
+      text: text
+    });
   }
+
 }
 
 module.exports = AppActions
