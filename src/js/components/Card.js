@@ -5,8 +5,8 @@ var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 var map;
 
-var CardMap = React.createClass({
-  displayName: "CardMap",
+var Card = React.createClass({
+  displayName: "Card",
   createMap: function(element) {
     var map = L.map(element);
     L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -26,7 +26,7 @@ var CardMap = React.createClass({
     var coords = this.props.position.split(" ")[0];
     var lon = coords.split(",")[1];
     var lat = coords.split(",")[0];
-    console.log("CardMap: Setup map: ", map);
+    console.log("Card: Setup map: ", map);
 
     for (s in stations) {
       var station = stations[s];
@@ -45,7 +45,7 @@ var CardMap = React.createClass({
   },
 
   componentDidMount: function() {
-    console.log("CardMap: componentDidMount props: ", this.props.position.lat);
+    console.log("Card: componentDidMount props: ", this.props.position.lat);
     if (this.props.createMap) {
       this.map = this.props.createMap(this.getDOMNode());
     }
@@ -70,7 +70,7 @@ var App = React.createClass({
   },
 
   componentDidMount: function() {
-    console.log("CardMap: componentDidMount this.props.card:", this.props.card);
+    console.log("Card: componentDidMount this.props.card:", this.props.card);
     // this.watchID = navigator.geolocation.watchPosition((lastPosition) => {
     //   this.setState({
     //     lastPosition
@@ -78,7 +78,7 @@ var App = React.createClass({
     //   var lat = Math.round(lastPosition.coords.latitude * 1000000) / 1000000;
     //   var lng = Math.round(lastPosition.coords.longitude * 1000000) / 1000000;
 
-      console.log("CardMap: navigator... ",lat,lng);
+      console.log("Card: navigator... ",lat,lng);
       var lat = "";
       var lng = "";
       var title = this.props.card.titile;
@@ -98,7 +98,7 @@ var App = React.createClass({
         $.ajax({
           url: airApi,
           success: function(data) {
-            console.log("CardMap: ajax data from airup", data);
+            console.log("Card: ajax data from airup", data);
             if (this.isMounted()) {
               this.setState({
                 lat:lat,
@@ -163,7 +163,7 @@ var App = React.createClass({
     var posi = lat + "," + lng;
     var title = "No air quality data available";
 
-    console.log("ZZZZZZ CardMap: TYPE: ", this.state);
+    console.log("ZZZZZZ Card: TYPE: ", this.state);
     if (type === "") {
       return (
         <span></span>
@@ -197,7 +197,7 @@ var App = React.createClass({
                 <strong>{entry.title}</strong><span>,&nbsp;</span><span>{entry.subtitle}</span>
               </div>
 
-              <CardMap position={posi} zoom="14" title={entry.title} stations={entry.stations}/>
+              <Card position={posi} zoom="14" title={entry.title} stations={entry.stations}/>
               <div className="mdl-card__supporting-text">
                 <strong>Index: </strong>{entry.data.index}<br/>
 
@@ -212,7 +212,7 @@ var App = React.createClass({
               <div className='mdl-card__title mdl-color-text--blue-grey'>
                 <strong>No air quality data available</strong>
               </div>
-              <CardMap position={posi} zoom="14" title={title}/>
+              <Card position={posi} zoom="14" title={title}/>
               <div className="mdl-card__supporting-text">
 
 

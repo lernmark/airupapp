@@ -31,8 +31,6 @@ var Navigation = React.createClass({
     ];
     var links = [];
     for (var key in allLinks) {
-      //cards.push(<CardMap key={key} card={allCards[key]} />);
-      // var position = allLinks[key].position;
       var title = allLinks[key].title;
       links.push(<a className="mdl-navigation__link" onClick={this.handleClick.bind(this, allLinks[key])} target="_blank">{title}</a>);
     }

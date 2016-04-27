@@ -18976,7 +18976,6 @@ module.exports = AppActions
 // var Header = require('./Header');
 var Navigation = require('./Navigation');
 var MainSection = require('./MainSection');
-// var CardMap = require('./CardMap');
 var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
@@ -18991,10 +18990,8 @@ function getAppState() {
 var Airupapp = React.createClass({displayName: 'Airupapp',
 
   getInitialState: function() {
-    //TODO: Här bör min nuvarande location beräknas. Inte i CardMap
-    //AppActions.insertMapCard('59.315219,18.034122', 'Hornstull');
+    //TODO: Här bör min nuvarande location beräknas. Inte i Card
     AppActions.insertInfoCard("data", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-
     return getAppState();
   },
 
@@ -19027,15 +19024,7 @@ var Airupapp = React.createClass({displayName: 'Airupapp',
 
   _onChange: function() {
     console.log("Airupapp: Now we will change....",this);
-
     this.setState(getAppState());
-    // this.setState({
-    //   allCards: {
-    //     coords:"59.311758,18.066317",
-    //     text:"Hornstull"
-    //   }
-    // });
-
   }
 
 });
@@ -19050,8 +19039,8 @@ var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 var map;
 
-var CardMap = React.createClass({
-  displayName: "CardMap",
+var Card = React.createClass({
+  displayName: "Card",
   createMap: function(element) {
     var map = L.map(element);
     L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -19071,7 +19060,7 @@ var CardMap = React.createClass({
     var coords = this.props.position.split(" ")[0];
     var lon = coords.split(",")[1];
     var lat = coords.split(",")[0];
-    console.log("CardMap: Setup map: ", map);
+    console.log("Card: Setup map: ", map);
 
     for (s in stations) {
       var station = stations[s];
@@ -19090,7 +19079,7 @@ var CardMap = React.createClass({
   },
 
   componentDidMount: function() {
-    console.log("CardMap: componentDidMount props: ", this.props.position.lat);
+    console.log("Card: componentDidMount props: ", this.props.position.lat);
     if (this.props.createMap) {
       this.map = this.props.createMap(this.getDOMNode());
     }
@@ -19115,7 +19104,7 @@ var App = React.createClass({displayName: 'App',
   },
 
   componentDidMount: function() {
-    console.log("CardMap: componentDidMount this.props.card:", this.props.card);
+    console.log("Card: componentDidMount this.props.card:", this.props.card);
     // this.watchID = navigator.geolocation.watchPosition((lastPosition) => {
     //   this.setState({
     //     lastPosition
@@ -19123,7 +19112,7 @@ var App = React.createClass({displayName: 'App',
     //   var lat = Math.round(lastPosition.coords.latitude * 1000000) / 1000000;
     //   var lng = Math.round(lastPosition.coords.longitude * 1000000) / 1000000;
 
-      console.log("CardMap: navigator... ",lat,lng);
+      console.log("Card: navigator... ",lat,lng);
       var lat = "";
       var lng = "";
       var title = this.props.card.titile;
@@ -19143,7 +19132,7 @@ var App = React.createClass({displayName: 'App',
         $.ajax({
           url: airApi,
           success: function(data) {
-            console.log("CardMap: ajax data from airup", data);
+            console.log("Card: ajax data from airup", data);
             if (this.isMounted()) {
               this.setState({
                 lat:lat,
@@ -19208,7 +19197,7 @@ var App = React.createClass({displayName: 'App',
     var posi = lat + "," + lng;
     var title = "No air quality data available";
 
-    console.log("ZZZZZZ CardMap: TYPE: ", this.state);
+    console.log("ZZZZZZ Card: TYPE: ", this.state);
     if (type === "") {
       return (
         React.DOM.span(null)
@@ -19242,7 +19231,7 @@ var App = React.createClass({displayName: 'App',
                 React.DOM.strong(null, entry.title), React.DOM.span(null, ", "), React.DOM.span(null, entry.subtitle)
               ), 
 
-              CardMap({position: posi, zoom: "14", title: entry.title, stations: entry.stations}), 
+              Card({position: posi, zoom: "14", title: entry.title, stations: entry.stations}), 
               React.DOM.div({className: "mdl-card__supporting-text"}, 
                 React.DOM.strong(null, "Index: "), entry.data.index, React.DOM.br(null)
 
@@ -19257,7 +19246,7 @@ var App = React.createClass({displayName: 'App',
               React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"}, 
                 React.DOM.strong(null, "No air quality data available")
               ), 
-              CardMap({position: posi, zoom: "14", title: title}), 
+              Card({position: posi, zoom: "14", title: title}), 
               React.DOM.div({className: "mdl-card__supporting-text"}
 
 
@@ -19293,7 +19282,7 @@ module.exports = App;
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var TodoActions = require('../actions/AppActions');
-var CardMap = require('./CardMap');
+var Card = require('./Card');
 // var TodoItem = require('./TodoItem.react');
 
 var MainSection = React.createClass({displayName: 'MainSection',
@@ -19318,7 +19307,7 @@ var MainSection = React.createClass({displayName: 'MainSection',
 
     for (var key in allCards) {
       console.log("MainSection: card", allCards[key]);
-      cards.push(CardMap({key: key, card: allCards[key]}));
+      cards.unshift(Card({key: key, card: allCards[key]}));
     }
     return (
       React.DOM.div(null, cards)
@@ -19336,7 +19325,7 @@ var MainSection = React.createClass({displayName: 'MainSection',
 
 module.exports = MainSection;
 
-},{"../actions/AppActions":153,"./CardMap":155,"react":152}],157:[function(require,module,exports){
+},{"../actions/AppActions":153,"./Card":155,"react":152}],157:[function(require,module,exports){
 /** @jsx React.DOM */
 
 var React = require('react');
@@ -19370,8 +19359,6 @@ var Navigation = React.createClass({displayName: 'Navigation',
     ];
     var links = [];
     for (var key in allLinks) {
-      //cards.push(<CardMap key={key} card={allCards[key]} />);
-      // var position = allLinks[key].position;
       var title = allLinks[key].title;
       links.push(React.DOM.a({className: "mdl-navigation__link", onClick: this.handleClick.bind(this, allLinks[key]), target: "_blank"}, title));
     }

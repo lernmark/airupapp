@@ -12,7 +12,7 @@
 var React = require('react');
 var ReactPropTypes = React.PropTypes;
 var TodoActions = require('../actions/AppActions');
-var CardMap = require('./CardMap');
+var Card = require('./Card');
 // var TodoItem = require('./TodoItem.react');
 
 var MainSection = React.createClass({
@@ -37,7 +37,7 @@ var MainSection = React.createClass({
 
     for (var key in allCards) {
       console.log("MainSection: card", allCards[key]);
-      cards.push(<CardMap key={key} card={allCards[key]} />);
+      cards.unshift(<Card key={key} card={allCards[key]} />);
     }
     return (
       <div>{cards}</div>
