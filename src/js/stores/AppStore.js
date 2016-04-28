@@ -13,10 +13,9 @@ var _cards = {};
  * @param  {coords} text The long/lat of the CARD Map item
  */
 function createMap(coords, title,  text) {
-  console.log("AppStore: create: ", coords, text);
   //var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
-  _cards[title] = {
-    id: title,
+  _cards[coords] = {
+    id: coords,
     type: "map",
     title:title,
     coords: coords,
@@ -29,7 +28,6 @@ function createMap(coords, title,  text) {
  * @param  {coords} text The long/lat of the CARD Map item
  */
 function createInfo(title, text) {
-  console.log("AppStore: create: ", title, text);
   //var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
   _cards[title] = {
     id: title,
@@ -39,12 +37,13 @@ function createInfo(title, text) {
   };
 }
 
+function removeCard(title) {
+  delete _cards[title];
+}
+
 var AppStore = assign({}, EventEmitter.prototype, {
 
   getAll: function() {
-    console.log("AppStore: getAll", _cards);
-    // create("59.311758,18.066317", "Hej hopp");
-    //return _cards.reverse();
     return _cards;
     // return [{
     //   coords:"59.311758,18.066317",
@@ -52,7 +51,6 @@ var AppStore = assign({}, EventEmitter.prototype, {
     // }];
   },
   emitChange: function() {
-    console.log("AppStore: emitChange",this);
     this.emit(CHANGE_EVENT);
   },
   /**
@@ -72,8 +70,14 @@ var AppStore = assign({}, EventEmitter.prototype, {
 
 // Lyssna på dispatchern
 AppDispatcher.register(function(payload){
-  console.log("AppStore: Lyssnar på dispatchern och fick ett meddelande: ",payload);
   switch(payload.actionType) {
+    case AppConstants.REMOVE_CARD:
+      var title = payload.title;
+      if (title !== '') {
+        removeCard(title);
+        AppStore.emitChange();
+      }
+      break;
     case AppConstants.ADD_MAP:
       var coords = payload.coords;
       var title = payload.title;

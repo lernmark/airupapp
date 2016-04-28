@@ -25,18 +25,11 @@ var MainSection = React.createClass({
    * @return {object}
    */
   render: function() {
-    console.log("MainSection: render this.props.allCards", this.props.allCards)
-    // This section should be hidden by default
-    // and shown when there are todos.
-    if (Object.keys(this.props.allCards).length < 1) {
-      //return null;
-    }
 
     var allCards = this.props.allCards;
     var cards = [];
 
     for (var key in allCards) {
-      console.log("MainSection: card", allCards[key]);
       cards.unshift(<Card key={key} card={allCards[key]} />);
     }
     return (
@@ -44,12 +37,6 @@ var MainSection = React.createClass({
     );
   },
 
-  /**
-   * Event handler to mark all TODOs as complete
-   */
-  _onToggleCompleteAll: function() {
-    //TodoActions.toggleCompleteAll();
-  }
 
 });
 

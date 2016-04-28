@@ -12,12 +12,69 @@
 // limitations under the License.
 
 'use strict';
+var format = require('util').format;
 var express = require('express');
+var gcloud = require('gcloud');
+var crypto = require('crypto');
+var bodyParser = require('body-parser');
 
 var app = express();
-// var port = process.env.PORT || 3000;
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+}));
+
+//app.use(bodyParser.json());
+
+app.enable('trust proxy');
+
+var dataset = gcloud.datastore({
+  // This environment variable is set by app.yaml when running on GAE, but will
+  // need to be manually set when running locally.
+  //projectId: process.env.GCLOUD_PROJECT
+  projectId: "airup-app"
+});
+
+
+app.post('/signup', function(req, res, next) {
+  var hash = crypto.createHash('sha256');
+  // Add this visit to the datastore
+  dataset.save({
+    key: dataset.key('signup'),
+    data: {
+      timestamp: new Date(),
+      fullname: req.body.fullname,
+      email:req.body.email,
+      neighbourhood: req.body.neighbourhood,
+      userIp: hash.update(req.ip).digest('hex').substr(0, 7)
+    }
+  }, function(err) {
+    if (err) { return next(err); }
+
+    // Query the last 10 visits from the datastore.
+    var query = dataset.createQuery('visit')
+      .order('-timestamp')
+      .limit(10);
+
+    dataset.runQuery(query, function(err, entities) {
+      if (err) { return next(err); }
+
+      var visits = entities.map(function(entity) {
+        return format(
+          'Time: %s, AddrHash: %s',
+          entity.data.timestamp,
+          entity.data.userIp);
+      });
+
+      var output = format('Last 10 visits:\n%s', visits.join('\n'));
+
+      res.set('Content-Type', 'text/plain');
+      res.status(200).send(true);
+    });
+  });
+});
 
 app.use(express.static(__dirname));
+
 
 // [START hello_world]
 // Say hello!
@@ -33,7 +90,7 @@ if (module === require.main) {
     var host = server.address().address;
     var port = server.address().port;
 
-    console.log('App listening at http://%s:%s', host, port);
+    console.log('airup-app listening at http://%s:%s', host, port);
   });
   // [END server]
 }

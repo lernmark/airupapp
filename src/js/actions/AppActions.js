@@ -10,6 +10,14 @@ var AppActions = {
   /**
    * @param  {string} text
    */
+  removeCard: function(title) {
+    console.log("AppAction: removeCard. Lets dispatch it: ", title);
+    AppDispatcher.dispatch({
+      actionType: AppConstants.REMOVE_CARD,
+      title: title,
+    });
+  },
+
   insertMapCard: function(title, text, coords) {
     console.log("AppAction: insertMapCard. Lets dispatch it: ", title, text, coords);
     AppDispatcher.dispatch({
@@ -19,7 +27,6 @@ var AppActions = {
       text: text
     });
   },
-
   /**
    * @param  {string} text
    */

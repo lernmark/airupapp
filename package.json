@@ -2,7 +2,7 @@
   "name": "airupapp",
   "version": "0.0.2",
   "description": "The Airup web app",
-  "author": "Paul Lernmark",
+  "author": "Airup",
   "repository": "https://github.com/lernmark/airupapp",
   "readme": "https://github.com/lernmark/airupapp/README.md",
   "license": "UNLICENSED",
@@ -14,7 +14,6 @@
     "mocha": "mocha test/index.js -t 30000",
     "test": "npm run lint && npm run mocha"
   },
-  "author": "Airup",
   "contributors": [
     {
       "name": "Paul Lernmark",
@@ -23,9 +22,11 @@
   ],
   "dependencies": {
     "express": "^4.13.4",
-    "body-parser": "^1.x.x"
+    "gcloud": "^0.30.3",
+    "body-parser": "~1.10.2"
   },
   "devDependencies": {
+    "body-parser": "^1.10.2",
     "es6-promise": "^1.0.0",
     "flux": "^2.0.1",
     "gulp": "^3.8.11",
@@ -36,11 +37,10 @@
     "gulp-sass": "^2.2.0",
     "gulp-uglify": "^1.5.3",
     "jshint": "^2.9.1",
+    "mocha": "^2.4.5",
     "object-assign": "^1.0.0",
     "react": "^0.12.2",
     "reactify": "^0.13.1",
-    "jshint": "^2.9.1",
-    "mocha": "^2.4.5",
     "supertest": "^1.2.0"
   },
   "engines": {

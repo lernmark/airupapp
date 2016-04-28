@@ -18944,6 +18944,14 @@ var AppActions = {
   /**
    * @param  {string} text
    */
+  removeCard: function(title) {
+    console.log("AppAction: removeCard. Lets dispatch it: ", title);
+    AppDispatcher.dispatch({
+      actionType: AppConstants.REMOVE_CARD,
+      title: title,
+    });
+  },
+
   insertMapCard: function(title, text, coords) {
     console.log("AppAction: insertMapCard. Lets dispatch it: ", title, text, coords);
     AppDispatcher.dispatch({
@@ -18953,7 +18961,6 @@ var AppActions = {
       text: text
     });
   },
-
   /**
    * @param  {string} text
    */
@@ -18991,7 +18998,7 @@ var Airupapp = React.createClass({displayName: 'Airupapp',
 
   getInitialState: function() {
     //TODO: Här bör min nuvarande location beräknas. Inte i Card
-    AppActions.insertInfoCard("data", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    AppActions.insertInfoCard("Airup, what is it?", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
     return getAppState();
   },
 
@@ -19018,12 +19025,12 @@ var Airupapp = React.createClass({displayName: 'Airupapp',
           React.DOM.main({className: "mdl-layout__content", id: "airup-map"}, 
           MainSection({allCards: this.state.allCards})
           )
+
       )
       )
   },
 
   _onChange: function() {
-    console.log("Airupapp: Now we will change....",this);
     this.setState(getAppState());
   }
 
@@ -19038,6 +19045,37 @@ var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 var map;
+var formDataObj = {
+  'fullname':'',
+  'email':'',
+  'neighbourhood':''
+};
+
+var MapCard = React.createClass({
+  displayName: "MapCard",
+  removeCard:function(coords, e){
+    AppActions.removeCard(coords);
+  },
+
+  render: function() {
+    return (
+      React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop"}, 
+        React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey-800"}, 
+          React.DOM.h6(null, React.DOM.strong(null, this.props.title), React.DOM.span(null, ", "), React.DOM.span(null, this.props.subtitle))
+        ), 
+        Card({position: this.props.position, zoom: "14", title: this.props.title, subtitle: this.props.subtitle, airData: this.props.data, stations: this.props.stations}), 
+        React.DOM.div({className: "mdl-card__supporting-text"}, 
+          React.DOM.strong(null, "Index: "), this.props.airData.index
+        ), 
+        React.DOM.div({className: "mdl-card__menu"}, 
+          React.DOM.button({className: "mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color-text--grey-400", onClick: this.removeCard.bind(this, this.props.position)}, 
+            React.DOM.i({className: "material-icons"}, "close")
+          )
+        )
+      )
+    )
+  }
+});
 
 var Card = React.createClass({
   displayName: "Card",
@@ -19048,6 +19086,7 @@ var Card = React.createClass({
     }).addTo(map);
     return map;
   },
+
 
   /*
   setupMap
@@ -19060,26 +19099,21 @@ var Card = React.createClass({
     var coords = this.props.position.split(" ")[0];
     var lon = coords.split(",")[1];
     var lat = coords.split(",")[0];
-    console.log("Card: Setup map: ", map);
 
     for (s in stations) {
       var station = stations[s];
-      console.log(station);
       var slon = parseFloat(station.position.split(",")[1]);
       var slat = parseFloat(station.position.split(",")[0]);
       L.marker([slat,slon]).addTo(map)
           .bindPopup(station.sourceId)
           .openPopup();
     }
-
     if (lat !== "undefined") {
-      //console.log(lat);
       this.map.setView([lat, lon], zoom);
     }
   },
 
   componentDidMount: function() {
-    console.log("Card: componentDidMount props: ", this.props.position.lat);
     if (this.props.createMap) {
       this.map = this.props.createMap(this.getDOMNode());
     }
@@ -19089,8 +19123,9 @@ var Card = React.createClass({
     this.setupMap(this.map);
   },
   render: function() {
-    return (React.DOM.div({className: "map mdl-card__media"}
-              ))
+    return (
+        React.DOM.div({className: "map mdl-card__media"})
+    )
   }
 });
 
@@ -19104,139 +19139,132 @@ var App = React.createClass({displayName: 'App',
   },
 
   componentDidMount: function() {
-    console.log("Card: componentDidMount this.props.card:", this.props.card);
-    // this.watchID = navigator.geolocation.watchPosition((lastPosition) => {
-    //   this.setState({
-    //     lastPosition
-    //   });
-    //   var lat = Math.round(lastPosition.coords.latitude * 1000000) / 1000000;
-    //   var lng = Math.round(lastPosition.coords.longitude * 1000000) / 1000000;
 
-      console.log("Card: navigator... ",lat,lng);
       var lat = "";
       var lng = "";
-      var title = this.props.card.titile;
+      var title = this.props.card.title;
       var text = this.props.card.text;
       var type = this.props.card.type;
 
       if (type === "info") {
         this.setState({
           type:type,
+          title:title,
+          text:text
         });
       } else if (type === "map") {
         var lat = this.props.card.coords.split(",")[0];
         var lng = this.props.card.coords.split(",")[1];
 
-
         var airApi = "https://airupdata.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
         $.ajax({
           url: airApi,
           success: function(data) {
-            console.log("Card: ajax data from airup", data);
             if (this.isMounted()) {
               this.setState({
                 lat:lat,
                 lng:lng,
                 type:type,
+                title:title,
+                text:text,
                 allCards: data.zones
               });
             }
           }.bind(this),
         });
       }
+  },
+  handleChange: function(event) {
+    formDataObj[event.target.id] = event.target.value;
+    if (formDataObj.fullname === "" || formDataObj.email === "" || formDataObj.neighbourhood === "") {
+      $("#form-submit").attr('disabled', 'disabled');
 
-    // });
-
-/*
-    this.watchID = navigator.geolocation.watchPosition(function (lastPosition) {
-      this.setState({
-        lastPosition: lastPosition
-      });
-      var lat = Math.round(lastPosition.coords.latitude * 1000000) / 1000000;
-      var lng = Math.round(lastPosition.coords.longitude * 1000000) / 1000000;
-      var airApi = "//bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
-      $.ajax({
-        url: airApi,
-        success: function (data) {
-          console.log("data",data);
-          if (this.isMounted()) {
-            this.setState({
-              lat: lat,
-              lng: lng,
-              forcasts: data.zones
-            });
-          }
-        }.bind(this)
-      });
-    });
-*/
-    //https://bamboo-zone-547.appspot.com/_ah/api/airup/v1/location/lat/59.315782/lng/18.033371
-    // $.get(this.props.source, function(result) {
-    //   var collection = result.Entries;
-    //   if (this.isMounted()) {
-    //     this.setState({
-    //       pImage: collection
-    //     });
-    //   }
-    // }.bind(this));
+    } else {
+      $("#form-submit").removeAttr('disabled');
+    }
+    this.setState({formdata: formDataObj});
   },
 
-  removeCard:function(id){
-    console.log("Navigation: removeCard: ", id, e);
-    AppActions.removeCard(id);
-    //AppActions.insertMapCard('59.315219,18.034122', 'Hornstull, Stockholm')
-    //AppActions.insertMapCard('59.313215,18.081075', 'SOFO, Stockholm')
-    //AppActions.insertMapCard('52.481409,13.434372', 'Neukölln, Berlin')
+  handleSave: function(event) {
+    // $.post( "/signup", { fullname: "John" } );
+    if (formDataObj.fullname === "" || formDataObj.email === "" || formDataObj.neighbourhood === "") {
+      console.log("Enter values in all fields.");
+    } else {
+      $(".mdl-progress").show();
+      $.post( "/signup", this.state.formdata).done(function( data ) {
+        $(".mdl-progress").hide();
+        $("#form-ok").show();
+      });
+    }
+
   },
 
   render: function() {
-    var allCards = this.state.allCards || [];
-    var lat = this.state.lat;
-    var lng = this.state.lng;
     var type = this.state.type;
-    var posi = lat + "," + lng;
-    var title = "No air quality data available";
+    var title = this.state.title;
+    var text = this.state.text;
 
-    console.log("ZZZZZZ Card: TYPE: ", this.state);
     if (type === "") {
       return (
         React.DOM.span(null)
       );
     } else if (type === "info") {
       return (
-          React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop"}, 
-            React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"}, 
-              React.DOM.strong(null, "Airup, what is it?")
+        React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop"}, 
+          React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"}, 
+            React.DOM.strong(null, title)
+          ), 
+          React.DOM.div({className: "mdl-card__supporting-text"}, 
+            text
+          ), 
+          React.DOM.div({className: "mdl-card__supporting-text"}, 
+            React.DOM.form({action: "#"}, 
+
+              React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
+                React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.fullname, onChange: this.handleChange, id: "fullname", required: true}), 
+                React.DOM.label({className: "mdl-textfield__label", for: "fullname"}, "Name")
+              ), 
+
+              React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
+                React.DOM.input({className: "mdl-textfield__input", type: "email", value: this.state.email, onChange: this.handleChange, id: "email", required: true}), 
+                React.DOM.label({className: "mdl-textfield__label", for: "email"}, "Email")
+              ), 
+
+              React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
+                React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.neighbourhood, onChange: this.handleChange, id: "neighbourhood", required: true}), 
+                React.DOM.label({className: "mdl-textfield__label", for: "neighbourhood"}, "Neighbourhood")
+              )
+
+
+            )
+          ), 
+          React.DOM.div({className: "mdl-card__actions mdl-card--border"}, 
+            React.DOM.a({className: "mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised", id: "form-submit", onClick: this.handleSave, disabled: true}, 
+              "Sign me up for updates"
+            ), 
+            React.DOM.p(null, 
+            React.DOM.div({id: "progress", className: "mdl-progress mdl-js-progress mdl-progress__indeterminate"})
             ), 
 
-            React.DOM.div({className: "mdl-card__supporting-text"}, 
-              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.            ")
+            React.DOM.p({className: "form-message", id: "form-ok"}, 
+              React.DOM.code(null, "Ok, We will keep you posted")
+            )
           )
+        )
       );
 
     } else if (type === "map") {
+      var allCards = this.state.allCards || [];
+      var lat = this.state.lat;
+      var lng = this.state.lng;
+      var posi = lat + "," + lng;
+
       if (allCards.length > 0) {
         return (
           React.DOM.div({className: "mdl-grid"}, 
 
           allCards.map(function(entry){
-            console.log("EEEEE", entry);
-            return React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop"}, 
-              React.DOM.div({className: "mdl-card__menu"}, 
-                React.DOM.button({className: "mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect"}, 
-                  React.DOM.i({className: "material-icons"}, "close")
-                )
-              ), 
-              React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey "}, 
-                React.DOM.strong(null, entry.title), React.DOM.span(null, ", "), React.DOM.span(null, entry.subtitle)
-              ), 
-
-              Card({position: posi, zoom: "14", title: entry.title, stations: entry.stations}), 
-              React.DOM.div({className: "mdl-card__supporting-text"}, 
-                React.DOM.strong(null, "Index: "), entry.data.index, React.DOM.br(null)
-
-              )
-            )
+            return MapCard({position: posi, zoom: "14", title: entry.title, subtitle: entry.subtitle, airData: entry.data, stations: entry.stations})
             })
           )
         );
@@ -19246,7 +19274,7 @@ var App = React.createClass({displayName: 'App',
               React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"}, 
                 React.DOM.strong(null, "No air quality data available")
               ), 
-              Card({position: posi, zoom: "14", title: title}), 
+
               React.DOM.div({className: "mdl-card__supporting-text"}
 
 
@@ -19254,10 +19282,6 @@ var App = React.createClass({displayName: 'App',
             )
         );
       }
-    } else if (type === "info") {
-
-    } else {
-
     }
 
 
@@ -19295,18 +19319,11 @@ var MainSection = React.createClass({displayName: 'MainSection',
    * @return {object}
    */
   render: function() {
-    console.log("MainSection: render this.props.allCards", this.props.allCards)
-    // This section should be hidden by default
-    // and shown when there are todos.
-    if (Object.keys(this.props.allCards).length < 1) {
-      //return null;
-    }
 
     var allCards = this.props.allCards;
     var cards = [];
 
     for (var key in allCards) {
-      console.log("MainSection: card", allCards[key]);
       cards.unshift(Card({key: key, card: allCards[key]}));
     }
     return (
@@ -19314,12 +19331,6 @@ var MainSection = React.createClass({displayName: 'MainSection',
     );
   },
 
-  /**
-   * Event handler to mark all TODOs as complete
-   */
-  _onToggleCompleteAll: function() {
-    //TodoActions.toggleCompleteAll();
-  }
 
 });
 
@@ -19339,7 +19350,6 @@ var Navigation = React.createClass({displayName: 'Navigation',
    */
 
    handleClick:function(link, e){
-     console.log("Navigation: handleClick: ", link);
      if (link.type === "map") {
        AppActions.insertMapCard(link.title, link.test, link.position);
      } else {
@@ -19351,9 +19361,9 @@ var Navigation = React.createClass({displayName: 'Navigation',
    },
   render: function() {
     var allLinks = [
-      {"title":"Information", "type":"info", "text":"Bla bla bla bla bla bla bla bla bla bla bla"},
+      {"title":"Airup, what is it?", "type":"info", "text":"Z Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
       {"title":"Färgfabriken", "type":"map", "position":"59.314924,18.019890", "text":""},
-      {"title":"Hornstull, Stockholm", "type":"map", "position":"59.315219,18.034122", "text":""},
+      {"title":"Hornstull", "type":"map", "position":"59.315219,18.034122", "text":""},
       {"title":"SOFO, Stockholm", "type":"map", "position":"59.313215,18.081075", "text":""},
       {"title":"Neukölln, Berlin", "type":"map", "position":"52.481409,13.434372", "text":""}
     ];
@@ -19365,7 +19375,7 @@ var Navigation = React.createClass({displayName: 'Navigation',
 
   	return (
       React.DOM.div({className: "mdl-layout__drawer"}, 
-        React.DOM.span({className: "mdl-layout-title"}, "About airup"), 
+        React.DOM.h5({className: "mdl-layout-title"}, "About Airup"), 
         React.DOM.nav({className: "mdl-navigation", id: "airup-navigation"}, 
           links
         )
@@ -19382,6 +19392,7 @@ module.exports = Navigation;
 module.exports = {
   ADD_MAP: 'ADD_MAP',
   ADD_INFO: 'ADD_INFO',
+  REMOVE_CARD: 'REMOVE_CARD',
   ADD_ITEM: 'ADD_ITEM',
   REMOVE_ITEM: 'REMOVE_ITEM'
 };
@@ -19438,10 +19449,9 @@ var _cards = {};
  * @param  {coords} text The long/lat of the CARD Map item
  */
 function createMap(coords, title,  text) {
-  console.log("AppStore: create: ", coords, text);
   //var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
-  _cards[title] = {
-    id: title,
+  _cards[coords] = {
+    id: coords,
     type: "map",
     title:title,
     coords: coords,
@@ -19454,7 +19464,6 @@ function createMap(coords, title,  text) {
  * @param  {coords} text The long/lat of the CARD Map item
  */
 function createInfo(title, text) {
-  console.log("AppStore: create: ", title, text);
   //var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
   _cards[title] = {
     id: title,
@@ -19464,12 +19473,13 @@ function createInfo(title, text) {
   };
 }
 
+function removeCard(title) {
+  delete _cards[title];
+}
+
 var AppStore = assign({}, EventEmitter.prototype, {
 
   getAll: function() {
-    console.log("AppStore: getAll", _cards);
-    // create("59.311758,18.066317", "Hej hopp");
-    //return _cards.reverse();
     return _cards;
     // return [{
     //   coords:"59.311758,18.066317",
@@ -19477,7 +19487,6 @@ var AppStore = assign({}, EventEmitter.prototype, {
     // }];
   },
   emitChange: function() {
-    console.log("AppStore: emitChange",this);
     this.emit(CHANGE_EVENT);
   },
   /**
@@ -19497,8 +19506,14 @@ var AppStore = assign({}, EventEmitter.prototype, {
 
 // Lyssna på dispatchern
 AppDispatcher.register(function(payload){
-  console.log("AppStore: Lyssnar på dispatchern och fick ett meddelande: ",payload);
   switch(payload.actionType) {
+    case AppConstants.REMOVE_CARD:
+      var title = payload.title;
+      if (title !== '') {
+        removeCard(title);
+        AppStore.emitChange();
+      }
+      break;
     case AppConstants.ADD_MAP:
       var coords = payload.coords;
       var title = payload.title;
