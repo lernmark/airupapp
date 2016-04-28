@@ -37,7 +37,7 @@ var Navigation = React.createClass({
 
   	return (
       <div className="mdl-layout__drawer">
-        <span className="mdl-layout-title">About airup</span>
+        <h5 className="mdl-layout-title">About Airup</h5>
         <nav className="mdl-navigation" id="airup-navigation">
           {links}
         </nav>

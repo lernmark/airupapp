@@ -171,12 +171,13 @@ var App = React.createClass({
     } else if (type === "info") {
       return (
           <div className='mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop'>
-            <div className='mdl-card__title mdl-color-text--blue-grey'>
-              <strong>Airup, what is it?</strong>
+            <div className='mdl-card__title mdl-color-text--blue-grey-800'>
+              <h5>Airup, what is it?</h5>
             </div>
 
             <div className="mdl-card__supporting-text">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.            </div>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </div>
           </div>
       );
 
@@ -188,20 +189,19 @@ var App = React.createClass({
           {allCards.map(function(entry){
             console.log("EEEEE", entry);
             return <div className='mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop'>
+              <div className='mdl-card__title mdl-color-text--blue-grey-800"'>
+                <h6><strong>{entry.title}</strong><span>,&nbsp;</span><span>{entry.subtitle}</span></h6>
+              </div>
+              <div className="mdl-card__supporting-text">
+                <strong>Index: </strong>{entry.data.index}<br/>
+              </div>
               <div className="mdl-card__menu">
-                <button className="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect">
+                <button className="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color-text--grey-400">
                   <i className="material-icons">close</i>
                 </button>
               </div>
-              <div className='mdl-card__title mdl-color-text--blue-grey '>
-                <strong>{entry.title}</strong><span>,&nbsp;</span><span>{entry.subtitle}</span>
-              </div>
 
               <Card position={posi} zoom="14" title={entry.title} stations={entry.stations}/>
-              <div className="mdl-card__supporting-text">
-                <strong>Index: </strong>{entry.data.index}<br/>
-
-              </div>
             </div>
             })}
           </div>
