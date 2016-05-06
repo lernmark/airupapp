@@ -8,6 +8,14 @@ var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 
 
+function showError() {
+  console.log("Show error");
+  $(".mdl-progress").hide();
+  return {
+    formError:true
+  };
+}
+
 function getAppState() {
   return {
     allCards: AppStore.getAll()
@@ -18,15 +26,17 @@ var Airupapp = React.createClass({
 
   getInitialState: function() {
     //TODO: Här bör min nuvarande location beräknas. Inte i Card
-    AppActions.insertInfoCard("Airup, what is it?", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    AppActions.insertInfoCard("The air, Where I live, What is it like?", "");
     return getAppState();
   },
 
   componentDidMount: function() {
     AppStore.addChangeListener(this._onChange);
+    AppStore.addErrorListener(this._onError);
   },
   componentWillUnmount: function() {
     AppStore.removeChangeListener(this._onChange);
+    AppStore.removeErrorListener(this._onError);
   },
   render: function() {
 
@@ -52,6 +62,10 @@ var Airupapp = React.createClass({
 
   _onChange: function() {
     this.setState(getAppState());
+  },
+  _onError: function() {
+    this.setState(showError());
+    console.log("Current State: ", this.state);
   }
 
 });

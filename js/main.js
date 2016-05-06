@@ -18945,7 +18945,6 @@ var AppActions = {
    * @param  {string} text
    */
   removeCard: function(title) {
-    console.log("AppAction: removeCard. Lets dispatch it: ", title);
     AppDispatcher.dispatch({
       actionType: AppConstants.REMOVE_CARD,
       title: title,
@@ -18953,7 +18952,6 @@ var AppActions = {
   },
 
   insertMapCard: function(title, text, coords) {
-    console.log("AppAction: insertMapCard. Lets dispatch it: ", title, text, coords);
     AppDispatcher.dispatch({
       actionType: AppConstants.ADD_MAP,
       coords: coords,
@@ -18965,11 +18963,19 @@ var AppActions = {
    * @param  {string} text
    */
   insertInfoCard: function(title, text) {
-    console.log("AppAction: insertInfoCard. Lets dispatch it: ", title, text);
     AppDispatcher.dispatch({
       actionType: AppConstants.ADD_INFO,
       title: title,
       text: text
+    });
+  },
+
+  submitSignup: function(formData) {
+    console.log("AppAction: ", formData);
+
+    AppDispatcher.dispatch({
+      actionType: AppConstants.SAVE_SIGNUP,
+      formData: formData
     });
   }
 
@@ -18988,6 +18994,14 @@ var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 
 
+function showError() {
+  console.log("Show error");
+  $(".mdl-progress").hide();
+  return {
+    formError:true
+  };
+}
+
 function getAppState() {
   return {
     allCards: AppStore.getAll()
@@ -18998,15 +19012,17 @@ var Airupapp = React.createClass({displayName: 'Airupapp',
 
   getInitialState: function() {
     //TODO: Här bör min nuvarande location beräknas. Inte i Card
-    AppActions.insertInfoCard("Airup, what is it?", "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    AppActions.insertInfoCard("The air, Where I live, What is it like?", "");
     return getAppState();
   },
 
   componentDidMount: function() {
     AppStore.addChangeListener(this._onChange);
+    AppStore.addErrorListener(this._onError);
   },
   componentWillUnmount: function() {
     AppStore.removeChangeListener(this._onChange);
+    AppStore.removeErrorListener(this._onError);
   },
   render: function() {
 
@@ -19032,6 +19048,10 @@ var Airupapp = React.createClass({displayName: 'Airupapp',
 
   _onChange: function() {
     this.setState(getAppState());
+  },
+  _onError: function() {
+    this.setState(showError());
+    console.log("Current State: ", this.state);
   }
 
 });
@@ -19051,11 +19071,37 @@ var formDataObj = {
   'neighbourhood':''
 };
 
+var aqiLabel = function(aqi) {
+  var tempValue = "Good";
+  switch (true) {
+    case (aqi<50):
+      tempValue = "Good";
+      break;
+    case (aqi<100):
+      tempValue = "Moderate";
+      break;
+    case (aqi<150):
+      tempValue = "Unhealthy for sensitive groups";
+      break;
+    case (aqi<200):
+      tempValue = "Unhealthy";
+      break;
+    case (aqi<300):
+      tempValue = "Very unhealthy";
+      break;
+    default:
+      tempValue = "Hazardous";
+  }
+  return tempValue;
+};
+
 var MapCard = React.createClass({
   displayName: "MapCard",
   removeCard:function(coords, e){
     AppActions.removeCard(coords);
   },
+
+
 
   render: function() {
     return (
@@ -19063,10 +19109,10 @@ var MapCard = React.createClass({
         React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey-800"}, 
           React.DOM.h6(null, React.DOM.strong(null, this.props.title), React.DOM.span(null, ", "), React.DOM.span(null, this.props.subtitle))
         ), 
-        Card({position: this.props.position, zoom: "14", title: this.props.title, subtitle: this.props.subtitle, airData: this.props.data, stations: this.props.stations}), 
         React.DOM.div({className: "mdl-card__supporting-text"}, 
-          React.DOM.strong(null, "Index: "), this.props.airData.index
+          React.DOM.strong(null, "Index: "), Math.round(this.props.airData.index), " ", React.DOM.em(null, "(", aqiLabel(this.props.airData.index), ")")
         ), 
+        Card({position: this.props.position, zoom: "14", title: this.props.title, subtitle: this.props.subtitle, airData: this.props.data, stations: this.props.stations}), 
         React.DOM.div({className: "mdl-card__menu"}, 
           React.DOM.button({className: "mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color-text--grey-400", onClick: this.removeCard.bind(this, this.props.position)}, 
             React.DOM.i({className: "material-icons"}, "close")
@@ -19186,15 +19232,18 @@ var App = React.createClass({displayName: 'App',
   },
 
   handleSave: function(event) {
-    // $.post( "/signup", { fullname: "John" } );
+
+
     if (formDataObj.fullname === "" || formDataObj.email === "" || formDataObj.neighbourhood === "") {
+
       console.log("Enter values in all fields.");
     } else {
-      $(".mdl-progress").show();
-      $.post( "/signup", this.state.formdata).done(function( data ) {
-        $(".mdl-progress").hide();
-        $("#form-ok").show();
-      });
+      AppActions.submitSignup(this.state.formdata);
+      // $(".mdl-progress").show();
+      // $.post( "/signup", this.state.formdata).done(function( data ) {
+      //   $(".mdl-progress").hide();
+      //   $("#form-ok").show();
+      // });
     }
 
   },
@@ -19204,6 +19253,11 @@ var App = React.createClass({displayName: 'App',
     var title = this.state.title;
     var text = this.state.text;
 
+                var progressWidth = {
+
+                  width: '60%' // 'ms' is the only lowercase vendor prefix
+                };
+
     if (type === "") {
       return (
         React.DOM.span(null)
@@ -19212,12 +19266,15 @@ var App = React.createClass({displayName: 'App',
       return (
         React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop"}, 
           React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"}, 
-            React.DOM.strong(null, title)
+            /*<strong>{title}</strong>*/
+            React.DOM.strong(null, "The air ", React.DOM.br(null), "Where I live", React.DOM.br(null), "What is it like?")
+
           ), 
           React.DOM.div({className: "mdl-card__supporting-text"}, 
             text
           ), 
           React.DOM.div({className: "mdl-card__supporting-text"}, 
+
             React.DOM.form({action: "#"}, 
 
               React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
@@ -19234,15 +19291,14 @@ var App = React.createClass({displayName: 'App',
                 React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.neighbourhood, onChange: this.handleChange, id: "neighbourhood", required: true}), 
                 React.DOM.label({className: "mdl-textfield__label", for: "neighbourhood"}, "Neighbourhood")
               )
-
-
             )
           ), 
           React.DOM.div({className: "mdl-card__actions mdl-card--border"}, 
             React.DOM.a({className: "mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised", id: "form-submit", onClick: this.handleSave, disabled: true}, 
-              "Sign me up for updates"
+              "Sign me up!"
             ), 
             React.DOM.p(null, 
+            React.DOM.code(null, this.state), 
             React.DOM.div({id: "progress", className: "mdl-progress mdl-js-progress mdl-progress__indeterminate"})
             ), 
 
@@ -19338,11 +19394,9 @@ module.exports = MainSection;
 
 },{"../actions/AppActions":153,"./Card":155,"react":152}],157:[function(require,module,exports){
 /** @jsx React.DOM */
-
 var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
-
 
 var Navigation = React.createClass({displayName: 'Navigation',
   /**
@@ -19361,11 +19415,14 @@ var Navigation = React.createClass({displayName: 'Navigation',
    },
   render: function() {
     var allLinks = [
-      {"title":"Airup, what is it?", "type":"info", "text":"Z Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+      {"title":"The air, Where I live, What is it like?", "type":"info", "text":""},
       {"title":"Färgfabriken", "type":"map", "position":"59.314924,18.019890", "text":""},
       {"title":"Hornstull", "type":"map", "position":"59.315219,18.034122", "text":""},
       {"title":"SOFO, Stockholm", "type":"map", "position":"59.313215,18.081075", "text":""},
-      {"title":"Neukölln, Berlin", "type":"map", "position":"52.481409,13.434372", "text":""}
+      {"title":"Frogner, Oslo", "type":"map", "position":"59.917155,10.703945", "text":""},
+      {"title":"Neukölln, Berlin", "type":"map", "position":"52.481409,13.434372", "text":""},
+      {"title":"Sternschanze, Hamburg", "type":"map", "position":"53.561577,9.962239", "text":""},
+      {"title":"Retiro, Madrid", "type":"map", "position":"40.421078,-3.685817", "text":""}
     ];
     var links = [];
     for (var key in allLinks) {
@@ -19394,7 +19451,8 @@ module.exports = {
   ADD_INFO: 'ADD_INFO',
   REMOVE_CARD: 'REMOVE_CARD',
   ADD_ITEM: 'ADD_ITEM',
-  REMOVE_ITEM: 'REMOVE_ITEM'
+  REMOVE_ITEM: 'REMOVE_ITEM',
+  SAVE_SIGNUP: 'SAVE_SIGNUP'
 };
 
 },{}],159:[function(require,module,exports){
@@ -19442,6 +19500,7 @@ var AppConstants = require('../constants/AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 var CHANGE_EVENT = 'change';
+var ERROR_EVENT = 'error';
 var _cards = {};
 
 /**
@@ -19489,24 +19548,54 @@ var AppStore = assign({}, EventEmitter.prototype, {
   emitChange: function() {
     this.emit(CHANGE_EVENT);
   },
-  /**
-   * @param {function} callback
-   */
-  addChangeListener: function(callback) {
-    this.on(CHANGE_EVENT, callback);
+  emitError: function() {
+    this.emit(ERROR_EVENT);
   },
-
   /**
    * @param {function} callback
    */
-  removeChangeListener: function(callback) {
-    this.removeListener(CHANGE_EVENT, callback);
-  }
+   addChangeListener: function(callback) {
+     this.on(CHANGE_EVENT, callback);
+   },
+
+   addErrorListener: function(callback) {
+     this.on(ERROR_EVENT, callback);
+   },
+
+    /**
+    * @param {function} callback
+    */
+   removeChangeListener: function(callback) {
+     this.removeListener(CHANGE_EVENT, callback);
+   },
+    /**
+    * @param {function} callback
+    */
+   removeErrorListener: function(callback) {
+     this.removeListener(ERROR_EVENT, callback);
+   }
 });
 
 // Lyssna på dispatchern
 AppDispatcher.register(function(payload){
   switch(payload.actionType) {
+    case AppConstants.SAVE_SIGNUP:
+      console.log(payload.formData);
+      $(".mdl-progress").show();
+      $.post( "/signups", payload.formData).done(function( data ) {
+        $(".mdl-progress").hide();
+        $("#form-ok").show();
+        AppStore.emitChange();
+      }).fail(function() {
+        console.log( "error" );
+        AppStore.emitError();
+      });
+      // var formData = payload.formData;
+      // if (title !== '') {
+      //   removeCard(title);
+      //   AppStore.emitChange();
+      // }
+      break;
     case AppConstants.REMOVE_CARD:
       var title = payload.title;
       if (title !== '') {

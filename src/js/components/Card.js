@@ -10,11 +10,37 @@ var formDataObj = {
   'neighbourhood':''
 };
 
+var aqiLabel = function(aqi) {
+  var tempValue = "Good";
+  switch (true) {
+    case (aqi<50):
+      tempValue = "Good";
+      break;
+    case (aqi<100):
+      tempValue = "Moderate";
+      break;
+    case (aqi<150):
+      tempValue = "Unhealthy for sensitive groups";
+      break;
+    case (aqi<200):
+      tempValue = "Unhealthy";
+      break;
+    case (aqi<300):
+      tempValue = "Very unhealthy";
+      break;
+    default:
+      tempValue = "Hazardous";
+  }
+  return tempValue;
+};
+
 var MapCard = React.createClass({
   displayName: "MapCard",
   removeCard:function(coords, e){
     AppActions.removeCard(coords);
   },
+
+
 
   render: function() {
     return (
@@ -22,10 +48,10 @@ var MapCard = React.createClass({
         <div className='mdl-card__title mdl-color-text--blue-grey-800'>
           <h6><strong>{this.props.title}</strong><span>,&nbsp;</span><span>{this.props.subtitle}</span></h6>
         </div>
-        <Card position={this.props.position} zoom="14" title={this.props.title} subtitle={this.props.subtitle} airData={this.props.data} stations={this.props.stations}/>
-        <div className="mdl-card__supporting-text">
-          <strong>Index: </strong>{this.props.airData.index}
+        <div className="mdl-card__supporting-text" >
+          <strong>Index: </strong>{Math.round(this.props.airData.index)} <em>({aqiLabel(this.props.airData.index)})</em>
         </div>
+        <Card position={this.props.position} zoom="14" title={this.props.title} subtitle={this.props.subtitle} airData={this.props.data} stations={this.props.stations}/>
         <div className="mdl-card__menu">
           <button className="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color-text--grey-400" onClick={this.removeCard.bind(this, this.props.position)}>
             <i className="material-icons">close</i>
@@ -145,15 +171,18 @@ var App = React.createClass({
   },
 
   handleSave: function(event) {
-    // $.post( "/signup", { fullname: "John" } );
+
+
     if (formDataObj.fullname === "" || formDataObj.email === "" || formDataObj.neighbourhood === "") {
+
       console.log("Enter values in all fields.");
     } else {
-      $(".mdl-progress").show();
-      $.post( "/signup", this.state.formdata).done(function( data ) {
-        $(".mdl-progress").hide();
-        $("#form-ok").show();
-      });
+      AppActions.submitSignup(this.state.formdata);
+      // $(".mdl-progress").show();
+      // $.post( "/signup", this.state.formdata).done(function( data ) {
+      //   $(".mdl-progress").hide();
+      //   $("#form-ok").show();
+      // });
     }
 
   },
@@ -163,6 +192,11 @@ var App = React.createClass({
     var title = this.state.title;
     var text = this.state.text;
 
+                var progressWidth = {
+
+                  width: '60%' // 'ms' is the only lowercase vendor prefix
+                };
+
     if (type === "") {
       return (
         <span></span>
@@ -171,12 +205,15 @@ var App = React.createClass({
       return (
         <div className='mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop'>
           <div className='mdl-card__title mdl-color-text--blue-grey'>
-            <strong>{title}</strong>
+            {/*<strong>{title}</strong>*/}
+            <strong>The air <br/>Where I live<br/>What is it like?</strong>
+
           </div>
           <div className="mdl-card__supporting-text">
             {text}
           </div>
           <div className="mdl-card__supporting-text">
+
             <form action="#">
 
               <div className="mdl-textfield mdl-js-textfield">
@@ -193,15 +230,14 @@ var App = React.createClass({
                 <input className="mdl-textfield__input" type="text" value={this.state.neighbourhood} onChange={this.handleChange} id="neighbourhood" required/>
                 <label className="mdl-textfield__label" for="neighbourhood">Neighbourhood</label>
               </div>
-
-
             </form>
           </div>
           <div className="mdl-card__actions mdl-card--border">
             <a className="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised" id="form-submit" onClick={this.handleSave} disabled>
-              Sign me up for updates
+              Sign me up!
             </a>
             <p>
+            <code>{this.state}</code>
             <div id="progress" className="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
             </p>
 

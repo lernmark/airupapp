@@ -1,35 +1,157 @@
 0 info it worked if it ends with ok
-1 verbose cli [ 'node', '/usr/local/bin/npm', 'start' ]
+1 verbose cli [ 'node',
+1 verbose cli   '/usr/local/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   '-g',
+1 verbose cli   'react-native-cli' ]
 2 info using npm@2.7.4
 3 info using node@v0.12.2
-4 verbose run-script [ 'prestart', 'start', 'poststart' ]
-5 info prestart airupapp@0.0.2
-6 info start airupapp@0.0.2
-7 verbose unsafe-perm in lifecycle true
-8 info airupapp@0.0.2 Failed to exec start script
-9 verbose stack Error: airupapp@0.0.2 start: `node app.js`
-9 verbose stack Exit status 1
-9 verbose stack     at EventEmitter.<anonymous> (/usr/local/lib/node_modules/npm/lib/utils/lifecycle.js:213:16)
-9 verbose stack     at EventEmitter.emit (events.js:110:17)
-9 verbose stack     at ChildProcess.<anonymous> (/usr/local/lib/node_modules/npm/lib/utils/spawn.js:14:12)
-9 verbose stack     at ChildProcess.emit (events.js:110:17)
-9 verbose stack     at maybeClose (child_process.js:1015:16)
-9 verbose stack     at Process.ChildProcess._handle.onexit (child_process.js:1087:5)
-10 verbose pkgid airupapp@0.0.2
-11 verbose cwd /Users/palle/airupapp
-12 error Darwin 15.4.0
-13 error argv "node" "/usr/local/bin/npm" "start"
-14 error node v0.12.2
-15 error npm  v2.7.4
-16 error code ELIFECYCLE
-17 error airupapp@0.0.2 start: `node app.js`
-17 error Exit status 1
-18 error Failed at the airupapp@0.0.2 start script 'node app.js'.
-18 error This is most likely a problem with the airupapp package,
-18 error not with npm itself.
-18 error Tell the author that this fails on your system:
-18 error     node app.js
-18 error You can get their info via:
-18 error     npm owner ls airupapp
-18 error There is likely additional logging output above.
-19 verbose exit [ 1, true ]
+4 silly cache add args [ 'react-native-cli', null ]
+5 verbose cache add spec react-native-cli
+6 silly cache add parsed spec { raw: 'react-native-cli',
+6 silly cache add   scope: null,
+6 silly cache add   name: 'react-native-cli',
+6 silly cache add   rawSpec: '',
+6 silly cache add   spec: '*',
+6 silly cache add   type: 'range' }
+7 verbose addNamed react-native-cli@*
+8 silly addNamed semver.valid null
+9 silly addNamed semver.validRange *
+10 silly addNameRange { name: 'react-native-cli', range: '*', hasData: false }
+11 silly mapToRegistry name react-native-cli
+12 silly mapToRegistry using default registry
+13 silly mapToRegistry registry https://registry.npmjs.org/
+14 silly mapToRegistry uri https://registry.npmjs.org/react-native-cli
+15 verbose addNameRange registry:https://registry.npmjs.org/react-native-cli not in flight; fetching
+16 verbose request uri https://registry.npmjs.org/react-native-cli
+17 verbose request no auth needed
+18 info attempt registry request try #1 at 00:07:30
+19 verbose request id 92504fbcd403bfd1
+20 verbose etag "B273W9E95KW82PIQ1U9NWE68R"
+21 http request GET https://registry.npmjs.org/react-native-cli
+22 http 304 https://registry.npmjs.org/react-native-cli
+23 silly get cb [ 304,
+23 silly get   { date: 'Sun, 01 May 2016 22:06:31 GMT',
+23 silly get     via: '1.1 varnish',
+23 silly get     'cache-control': 'max-age=300',
+23 silly get     etag: '"B273W9E95KW82PIQ1U9NWE68R"',
+23 silly get     age: '10',
+23 silly get     connection: 'keep-alive',
+23 silly get     'x-served-by': 'cache-fra1241-FRA',
+23 silly get     'x-cache': 'HIT',
+23 silly get     'x-cache-hits': '1',
+23 silly get     'x-timer': 'S1462140391.635506,VS0,VE0',
+23 silly get     vary: 'Accept-Encoding' } ]
+24 verbose etag https://registry.npmjs.org/react-native-cli from cache
+25 verbose get saving react-native-cli to /Users/palle/.npm/registry.npmjs.org/react-native-cli/.cache.json
+26 silly addNameRange number 2 { name: 'react-native-cli', range: '*', hasData: true }
+27 silly addNameRange versions [ 'react-native-cli',
+27 silly addNameRange   [ '0.0.0',
+27 silly addNameRange     '0.0.1',
+27 silly addNameRange     '0.1.2',
+27 silly addNameRange     '0.1.3',
+27 silly addNameRange     '0.1.4',
+27 silly addNameRange     '0.1.5',
+27 silly addNameRange     '0.1.7',
+27 silly addNameRange     '0.1.8',
+27 silly addNameRange     '0.1.9',
+27 silly addNameRange     '0.1.10',
+27 silly addNameRange     '0.2.0' ] ]
+28 verbose addNamed react-native-cli@0.2.0
+29 silly addNamed semver.valid 0.2.0
+30 silly addNamed semver.validRange 0.2.0
+31 silly cache afterAdd react-native-cli@0.2.0
+32 verbose afterAdd /Users/palle/.npm/react-native-cli/0.2.0/package/package.json not in flight; writing
+33 verbose afterAdd /Users/palle/.npm/react-native-cli/0.2.0/package/package.json written
+34 silly install resolved [ { name: 'react-native-cli',
+34 silly install resolved     version: '0.2.0',
+34 silly install resolved     license: 'BSD-3-Clause',
+34 silly install resolved     description: 'The React Native CLI tools',
+34 silly install resolved     main: 'index.js',
+34 silly install resolved     engines: { node: '>=4' },
+34 silly install resolved     repository:
+34 silly install resolved      { type: 'git',
+34 silly install resolved        url: 'git+https://github.com/facebook/react-native.git' },
+34 silly install resolved     scripts: { test: 'mocha' },
+34 silly install resolved     bin: { 'react-native': 'index.js' },
+34 silly install resolved     dependencies:
+34 silly install resolved      { chalk: '^1.1.1',
+34 silly install resolved        minimist: '^1.2.0',
+34 silly install resolved        prompt: '^0.2.14',
+34 silly install resolved        semver: '^5.0.3' },
+34 silly install resolved     bugs: { url: 'https://github.com/facebook/react-native/issues' },
+34 silly install resolved     homepage: 'https://github.com/facebook/react-native#readme',
+34 silly install resolved     _id: 'react-native-cli@0.2.0',
+34 silly install resolved     _shasum: 'd0559ab2f964de40b2788708c0779c9b0493a0ed',
+34 silly install resolved     _from: 'react-native-cli@*',
+34 silly install resolved     _npmVersion: '2.14.12',
+34 silly install resolved     _nodeVersion: '4.2.4',
+34 silly install resolved     _npmUser: { name: 'bestander', email: 'bestander@gmail.com' },
+34 silly install resolved     dist:
+34 silly install resolved      { shasum: 'd0559ab2f964de40b2788708c0779c9b0493a0ed',
+34 silly install resolved        tarball: 'https://registry.npmjs.org/react-native-cli/-/react-native-cli-0.2.0.tgz' },
+34 silly install resolved     maintainers:
+34 silly install resolved      [ [Object],
+34 silly install resolved        [Object],
+34 silly install resolved        [Object],
+34 silly install resolved        [Object],
+34 silly install resolved        [Object],
+34 silly install resolved        [Object],
+34 silly install resolved        [Object] ],
+34 silly install resolved     _npmOperationalInternal:
+34 silly install resolved      { host: 'packages-13-west.internal.npmjs.com',
+34 silly install resolved        tmp: 'tmp/react-native-cli-0.2.0.tgz_1458839025760_0.14706380176357925' },
+34 silly install resolved     directories: {},
+34 silly install resolved     _resolved: 'https://registry.npmjs.org/react-native-cli/-/react-native-cli-0.2.0.tgz',
+34 silly install resolved     readme: 'ERROR: No README data found!' } ]
+35 info install react-native-cli@0.2.0 into /usr/local/lib
+36 info installOne react-native-cli@0.2.0
+37 verbose installOne of react-native-cli to /usr/local/lib not in flight; installing
+38 verbose lock using /Users/palle/.npm/_locks/react-native-cli-a444c604a39e8d3e.lock for /usr/local/lib/node_modules/react-native-cli
+39 warn engine react-native-cli@0.2.0: wanted: {"node":">=4"} (current: {"node":"0.12.2","npm":"2.7.4"})
+40 silly install write writing react-native-cli 0.2.0 to /usr/local/lib/node_modules/react-native-cli
+41 silly cache addNamed cb react-native-cli@0.2.0
+42 verbose unbuild lib/node_modules/react-native-cli
+43 silly gentlyRm /usr/local/lib/node_modules/react-native-cli is being purged from base /usr/local
+44 verbose gentlyRm don't care about contents; nuking /usr/local/lib/node_modules/react-native-cli
+45 verbose tar unpack /Users/palle/.npm/react-native-cli/0.2.0/package.tgz
+46 verbose tar unpacking to /usr/local/lib/node_modules/react-native-cli
+47 silly gentlyRm /usr/local/lib/node_modules/react-native-cli is being purged
+48 verbose gentlyRm don't care about contents; nuking /usr/local/lib/node_modules/react-native-cli
+49 silly gunzTarPerm modes [ '755', '644' ]
+50 error tar.unpack untar error /Users/palle/.npm/react-native-cli/0.2.0/package.tgz
+51 verbose unlock done using /Users/palle/.npm/_locks/react-native-cli-a444c604a39e8d3e.lock for /usr/local/lib/node_modules/react-native-cli
+52 verbose fstream_path /usr/local/lib/node_modules/react-native-cli
+53 verbose fstream_type Directory
+54 verbose fstream_class DirWriter
+55 verbose stack Error: EACCES, mkdir '/usr/local/lib/node_modules/react-native-cli'
+55 verbose stack     at Error (native)
+56 verbose fstream_stack /usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23
+56 verbose fstream_stack /usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53
+56 verbose fstream_stack FSReqWrap.oncomplete (fs.js:95:15)
+57 verbose cwd /Users/palle/airupapp
+58 error Darwin 15.4.0
+59 error argv "node" "/usr/local/bin/npm" "install" "-g" "react-native-cli"
+60 error node v0.12.2
+61 error npm  v2.7.4
+62 error path /usr/local/lib/node_modules/react-native-cli
+63 error code EACCES
+64 error errno -13
+65 error Error: EACCES, mkdir '/usr/local/lib/node_modules/react-native-cli'
+65 error     at Error (native)
+65 error  { [Error: EACCES, mkdir '/usr/local/lib/node_modules/react-native-cli']
+65 error   errno: -13,
+65 error   code: 'EACCES',
+65 error   path: '/usr/local/lib/node_modules/react-native-cli',
+65 error   fstream_type: 'Directory',
+65 error   fstream_path: '/usr/local/lib/node_modules/react-native-cli',
+65 error   fstream_class: 'DirWriter',
+65 error   fstream_stack:
+65 error    [ '/usr/local/lib/node_modules/npm/node_modules/fstream/lib/dir-writer.js:36:23',
+65 error      '/usr/local/lib/node_modules/npm/node_modules/mkdirp/index.js:46:53',
+65 error      'FSReqWrap.oncomplete (fs.js:95:15)' ] }
+66 error Please try running this command again as root/Administrator.
+67 verbose exit [ -13, true ]
+68 verbose unbuild lib/node_modules/react-native-cli
+69 silly gentlyRm /usr/local/lib/node_modules/react-native-cli is being purged from base /usr/local
+70 verbose gentlyRm don't care about contents; nuking /usr/local/lib/node_modules/react-native-cli

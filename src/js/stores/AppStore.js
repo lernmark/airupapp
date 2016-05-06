@@ -6,6 +6,7 @@ var AppConstants = require('../constants/AppConstants');
 var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 var CHANGE_EVENT = 'change';
+var ERROR_EVENT = 'error';
 var _cards = {};
 
 /**
@@ -53,24 +54,54 @@ var AppStore = assign({}, EventEmitter.prototype, {
   emitChange: function() {
     this.emit(CHANGE_EVENT);
   },
-  /**
-   * @param {function} callback
-   */
-  addChangeListener: function(callback) {
-    this.on(CHANGE_EVENT, callback);
+  emitError: function() {
+    this.emit(ERROR_EVENT);
   },
-
   /**
    * @param {function} callback
    */
-  removeChangeListener: function(callback) {
-    this.removeListener(CHANGE_EVENT, callback);
-  }
+   addChangeListener: function(callback) {
+     this.on(CHANGE_EVENT, callback);
+   },
+
+   addErrorListener: function(callback) {
+     this.on(ERROR_EVENT, callback);
+   },
+
+    /**
+    * @param {function} callback
+    */
+   removeChangeListener: function(callback) {
+     this.removeListener(CHANGE_EVENT, callback);
+   },
+    /**
+    * @param {function} callback
+    */
+   removeErrorListener: function(callback) {
+     this.removeListener(ERROR_EVENT, callback);
+   }
 });
 
 // Lyssna på dispatchern
 AppDispatcher.register(function(payload){
   switch(payload.actionType) {
+    case AppConstants.SAVE_SIGNUP:
+      console.log(payload.formData);
+      $(".mdl-progress").show();
+      $.post( "/signups", payload.formData).done(function( data ) {
+        $(".mdl-progress").hide();
+        $("#form-ok").show();
+        AppStore.emitChange();
+      }).fail(function() {
+        console.log( "error" );
+        AppStore.emitError();
+      });
+      // var formData = payload.formData;
+      // if (title !== '') {
+      //   removeCard(title);
+      //   AppStore.emitChange();
+      // }
+      break;
     case AppConstants.REMOVE_CARD:
       var title = payload.title;
       if (title !== '') {

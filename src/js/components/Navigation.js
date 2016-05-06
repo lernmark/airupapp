@@ -1,9 +1,7 @@
 /** @jsx React.DOM */
-
 var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
-
 
 var Navigation = React.createClass({
   /**
@@ -22,11 +20,14 @@ var Navigation = React.createClass({
    },
   render: function() {
     var allLinks = [
-      {"title":"Airup, what is it?", "type":"info", "text":"Z Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."},
+      {"title":"The air, Where I live, What is it like?", "type":"info", "text":""},
       {"title":"Färgfabriken", "type":"map", "position":"59.314924,18.019890", "text":""},
       {"title":"Hornstull", "type":"map", "position":"59.315219,18.034122", "text":""},
       {"title":"SOFO, Stockholm", "type":"map", "position":"59.313215,18.081075", "text":""},
-      {"title":"Neukölln, Berlin", "type":"map", "position":"52.481409,13.434372", "text":""}
+      {"title":"Frogner, Oslo", "type":"map", "position":"59.917155,10.703945", "text":""},
+      {"title":"Neukölln, Berlin", "type":"map", "position":"52.481409,13.434372", "text":""},
+      {"title":"Sternschanze, Hamburg", "type":"map", "position":"53.561577,9.962239", "text":""},
+      {"title":"Retiro, Madrid", "type":"map", "position":"40.421078,-3.685817", "text":""}
     ];
     var links = [];
     for (var key in allLinks) {
