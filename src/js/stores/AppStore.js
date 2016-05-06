@@ -86,9 +86,9 @@ var AppStore = assign({}, EventEmitter.prototype, {
 AppDispatcher.register(function(payload){
   switch(payload.actionType) {
     case AppConstants.SAVE_SIGNUP:
-      console.log(payload.formData);
+
       $(".mdl-progress").show();
-      $.post( "/signups", payload.formData).done(function( data ) {
+      $.post( "/signup", payload.formData).done(function( data ) {
         $(".mdl-progress").hide();
         $("#form-ok").show();
         AppStore.emitChange();
@@ -96,11 +96,6 @@ AppDispatcher.register(function(payload){
         console.log( "error" );
         AppStore.emitError();
       });
-      // var formData = payload.formData;
-      // if (title !== '') {
-      //   removeCard(title);
-      //   AppStore.emitChange();
-      // }
       break;
     case AppConstants.REMOVE_CARD:
       var title = payload.title;

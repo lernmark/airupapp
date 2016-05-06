@@ -49,7 +49,8 @@ var MapCard = React.createClass({
           <h6><strong>{this.props.title}</strong><span>,&nbsp;</span><span>{this.props.subtitle}</span></h6>
         </div>
         <div className="mdl-card__supporting-text" >
-          <strong>Index: </strong>{Math.round(this.props.airData.index)} <em>({aqiLabel(this.props.airData.index)})</em>
+        <strong>Index: </strong>{Math.round(this.props.airData.index)} <em>({aqiLabel(this.props.airData.index)})</em>
+
         </div>
         <Card position={this.props.position} zoom="14" title={this.props.title} subtitle={this.props.subtitle} airData={this.props.data} stations={this.props.stations}/>
         <div className="mdl-card__menu">
@@ -81,6 +82,7 @@ var Card = React.createClass({
     var defaultIdx = 0;
     var zoom = parseInt(this.props.zoom);
     var stations = this.props.stations;
+    var airData = this.props.airData;
     var coords = this.props.position.split(" ")[0];
     var lon = coords.split(",")[1];
     var lat = coords.split(",")[0];
@@ -237,7 +239,7 @@ var App = React.createClass({
               Sign me up!
             </a>
             <p>
-            <code>{this.state}</code>
+
             <div id="progress" className="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
             </p>
 

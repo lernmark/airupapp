@@ -39,7 +39,6 @@ var Airupapp = React.createClass({
     AppStore.removeErrorListener(this._onError);
   },
   render: function() {
-
     return (
       <div className="mdl-layout mdl-js-layout mdl-layout--fixed-header" >
           <header className="mdl-layout__header mdl-layout__header--waterfall">

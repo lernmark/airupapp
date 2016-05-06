@@ -23,6 +23,7 @@ var Navigation = React.createClass({
       {"title":"The air, Where I live, What is it like?", "type":"info", "text":""},
       {"title":"Färgfabriken", "type":"map", "position":"59.314924,18.019890", "text":""},
       {"title":"Hornstull", "type":"map", "position":"59.315219,18.034122", "text":""},
+      {"title":"Fredhäll", "type":"map", "position":"59.328909,18.002429", "text":""},
       {"title":"SOFO, Stockholm", "type":"map", "position":"59.313215,18.081075", "text":""},
       {"title":"Frogner, Oslo", "type":"map", "position":"59.917155,10.703945", "text":""},
       {"title":"Neukölln, Berlin", "type":"map", "position":"52.481409,13.434372", "text":""},
