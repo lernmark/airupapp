@@ -97,6 +97,20 @@ var Card = React.createClass({
     loadRawData(apiUrl + "?offset=2");
     loadRawData(apiUrl + "?offset=3");
 
+    function getColor(index) {
+      var color = "";
+      if (index > 40) {
+        color = "red";
+      } else if(index > 30) {
+        color = "pink"
+      } else if(index > 20) {
+        color = "yellow"
+      } else {
+        color = "green";
+      }
+      return color;
+    }
+    
     function loadRawData(apiUrl) {
       $(".mdl-progress").show();
       $.getJSON( apiUrl, function( data ) {
@@ -110,9 +124,16 @@ var Card = React.createClass({
           var slat = parseFloat(station.position.split(",")[0]);
 
           //console.log(slon, slat, station.sourceId);
+          L.circle([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)], 500, {
+              color: getColor(station.index),
+              fillColor: getColor(station.index),
+              fillOpacity: 0.3
+          }).addTo(map);      
+          /*
           L.marker([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)]).addTo(map)
               .bindPopup(station.positionLabels + "<br/>Air quality index: <strong>" + station.index + "</strong>")
               .openPopup();
+              */
         });
       }).done(function() {
         console.log( "second success" );
@@ -129,9 +150,16 @@ var Card = React.createClass({
       var station = stations[s];
       var slon = parseFloat(station.position.split(",")[1]);
       var slat = parseFloat(station.position.split(",")[0]);
-      L.marker([slat,slon]).addTo(map)
+      L.circle([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)], 500, {
+          color: getColor(station.index),
+          fillColor: getColor(station.index),
+          fillOpacity: 0.3
+      }).addTo(map);  
+      
+/*      L.marker([slat,slon]).addTo(map)
           .bindPopup(station.sourceId)
           .openPopup();
+          */
     }
 
     if (lat !== "undefined") {
