@@ -87,8 +87,6 @@ var Card = React.createClass({
     var lon = coords.split(",")[1];
     var lat = coords.split(",")[0];
 
-
-
     var apiUrl = "https://airupdata.appspot.com/_ah/api/airup/v1/rawdata";
     //var apiUrl = "//localhost:8080/_ah/api/airup/v1/rawdata?offset=0";
 
@@ -128,16 +126,16 @@ var Card = React.createClass({
               color: getColor(station.index),
               fillColor: getColor(station.index),
               fillOpacity: 0.3
-          }).addTo(map);      
-          /*
-          L.marker([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)]).addTo(map)
-              .bindPopup(station.positionLabels + "<br/>Air quality index: <strong>" + station.index + "</strong>")
-              .openPopup();
-              */
+          }).addTo(map).bindPopup(station.positionLabels + "<br/>Air quality index: <strong>" + station.index + "</strong>").openPopup();
+
+
         });
       }).done(function() {
         console.log( "second success" );
         $(".mdl-progress").hide();
+        if (lat !== "undefined") {
+          map.setView([lat, lon], zoom);
+        }        
       })
       .fail(function() {
         console.log( "error" );
@@ -148,18 +146,16 @@ var Card = React.createClass({
 
     for (s in stations) {
       var station = stations[s];
+      console.log(station);
       var slon = parseFloat(station.position.split(",")[1]);
       var slat = parseFloat(station.position.split(",")[0]);
+
       L.circle([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)], 500, {
           color: getColor(station.index),
           fillColor: getColor(station.index),
           fillOpacity: 0.3
-      }).addTo(map);  
+      }).addTo(map);      
       
-/*      L.marker([slat,slon]).addTo(map)
-          .bindPopup(station.sourceId)
-          .openPopup();
-          */
     }
 
     if (lat !== "undefined") {
