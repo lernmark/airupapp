@@ -9,8 +9,13 @@ var Navigation = React.createClass({
    */
 
    handleClick:function(link, e){
+     $("#form-ok").hide();
+     var layout = document.querySelector('.mdl-layout');
+     layout.MaterialLayout.toggleDrawer();
      if (link.type === "map") {
+
        AppActions.insertMapCard(link.title, link.test, link.position);
+       AppActions.insertInfoCard("What is the air quality like where I live?", "");
      } else {
        AppActions.insertInfoCard(link.title, link.text);
      }
@@ -20,7 +25,7 @@ var Navigation = React.createClass({
    },
   render: function() {
     var allLinks = [
-      {"title":"The air, Where I live, What is it like?", "type":"info", "text":""},
+      //{"title":"What is the air quality like where I live?", "type":"info", "text":""},
       {"title":"Färgfabriken", "type":"map", "position":"59.314924,18.019890", "text":""},
       {"title":"Hornstull", "type":"map", "position":"59.315219,18.034122", "text":""},
       {"title":"Fredhäll", "type":"map", "position":"59.328909,18.002429", "text":""},

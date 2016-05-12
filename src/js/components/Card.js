@@ -44,7 +44,7 @@ var MapCard = React.createClass({
 
   render: function() {
     return (
-      <div className='mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop'>
+      <div className='mdl-card mdl-cell mdl-cell--12-col'>
         <div className='mdl-card__title mdl-color-text--blue-grey-800'>
           <h6><strong>{this.props.title}</strong><span>,&nbsp;</span><span>{this.props.subtitle}</span></h6>
         </div>
@@ -52,7 +52,7 @@ var MapCard = React.createClass({
         <strong>Index: </strong>{Math.round(this.props.airData.index)} <em>({aqiLabel(this.props.airData.index)})</em>
 
         </div>
-        <Card position={this.props.position} zoom="14" title={this.props.title} subtitle={this.props.subtitle} airData={this.props.data} stations={this.props.stations}/>
+        <Card position={this.props.position} zoom="5" title={this.props.title} subtitle={this.props.subtitle} airData={this.props.data} stations={this.props.stations}/>
         <div className="mdl-card__menu">
           <button className="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color-text--grey-400" onClick={this.removeCard.bind(this, this.props.position)}>
             <i className="material-icons">close</i>
@@ -87,6 +87,44 @@ var Card = React.createClass({
     var lon = coords.split(",")[1];
     var lat = coords.split(",")[0];
 
+
+
+    var apiUrl = "https://airupdata.appspot.com/_ah/api/airup/v1/rawdata";
+    //var apiUrl = "//localhost:8080/_ah/api/airup/v1/rawdata?offset=0";
+
+    loadRawData(apiUrl + "?offset=0");
+    loadRawData(apiUrl + "?offset=1");
+    loadRawData(apiUrl + "?offset=2");
+    loadRawData(apiUrl + "?offset=3");
+
+    function loadRawData(apiUrl) {
+      $(".mdl-progress").show();
+      $.getJSON( apiUrl, function( data ) {
+        var items = [];
+
+        $.each( data.records, function( key, station ) {
+
+        //   items.push( "<li id='" + key + "'>" + val + "</li>" );
+          //$(".mdl-progress").show();
+          var slon = parseFloat(station.position.split(",")[1]);
+          var slat = parseFloat(station.position.split(",")[0]);
+
+          //console.log(slon, slat, station.sourceId);
+          L.marker([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)]).addTo(map)
+              .bindPopup(station.positionLabels + "<br/>Air quality index: <strong>" + station.index + "</strong>")
+              .openPopup();
+        });
+      }).done(function() {
+        console.log( "second success" );
+        $(".mdl-progress").hide();
+      })
+      .fail(function() {
+        console.log( "error" );
+        $(".mdl-progress").hide();
+      });
+    }
+
+
     for (s in stations) {
       var station = stations[s];
       var slon = parseFloat(station.position.split(",")[1]);
@@ -95,6 +133,7 @@ var Card = React.createClass({
           .bindPopup(station.sourceId)
           .openPopup();
     }
+
     if (lat !== "undefined") {
       this.map.setView([lat, lon], zoom);
     }
@@ -142,12 +181,13 @@ var App = React.createClass({
       } else if (type === "map") {
         var lat = this.props.card.coords.split(",")[0];
         var lng = this.props.card.coords.split(",")[1];
-
+        $(".mdl-progress").show();
         var airApi = "https://airupdata.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
         $.ajax({
           url: airApi,
           success: function(data) {
             if (this.isMounted()) {
+              $(".mdl-progress").hide();
               this.setState({
                 lat:lat,
                 lng:lng,
@@ -163,7 +203,7 @@ var App = React.createClass({
   },
   handleChange: function(event) {
     formDataObj[event.target.id] = event.target.value;
-    if (formDataObj.fullname === "" || formDataObj.email === "" || formDataObj.neighbourhood === "") {
+    if (formDataObj.neighbourhood === "") {
       $("#form-submit").attr('disabled', 'disabled');
 
     } else {
@@ -175,7 +215,7 @@ var App = React.createClass({
   handleSave: function(event) {
 
 
-    if (formDataObj.fullname === "" || formDataObj.email === "" || formDataObj.neighbourhood === "") {
+    if (formDataObj.neighbourhood === "") {
 
       console.log("Enter values in all fields.");
     } else {
@@ -205,44 +245,36 @@ var App = React.createClass({
       );
     } else if (type === "info") {
       return (
-        <div className='mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop'>
+        <div className='mdl-card mdl-cell mdl-cell--6-col'>
           <div className='mdl-card__title mdl-color-text--blue-grey'>
-            {/*<strong>{title}</strong>*/}
-            <strong>The air <br/>Where I live<br/>What is it like?</strong>
-
+            <strong>What is the air quality like where I live?</strong>
           </div>
           <div className="mdl-card__supporting-text">
             {text}
           </div>
           <div className="mdl-card__supporting-text">
-
             <form action="#">
-
+            <div className="mdl-textfield mdl-js-textfield">
+              <input className="mdl-textfield__input" type="text" value={this.state.neighbourhood} onChange={this.handleChange} id="neighbourhood" required/>
+              <label className="mdl-textfield__label" for="neighbourhood">My neighbourhood</label>
+            </div>
               <div className="mdl-textfield mdl-js-textfield">
-                <input className="mdl-textfield__input" type="text" value={this.state.fullname} onChange={this.handleChange} id="fullname" required/>
+                <input className="mdl-textfield__input" type="text" value={this.state.fullname} onChange={this.handleChange} id="fullname" />
                 <label className="mdl-textfield__label" for="fullname">Name</label>
               </div>
-
               <div className="mdl-textfield mdl-js-textfield">
-                <input className="mdl-textfield__input" type="email" value={this.state.email} onChange={this.handleChange} id="email" required/>
+                <input className="mdl-textfield__input" type="email" value={this.state.email} onChange={this.handleChange} id="email" />
                 <label className="mdl-textfield__label" for="email">Email</label>
-              </div>
-
-              <div className="mdl-textfield mdl-js-textfield">
-                <input className="mdl-textfield__input" type="text" value={this.state.neighbourhood} onChange={this.handleChange} id="neighbourhood" required/>
-                <label className="mdl-textfield__label" for="neighbourhood">Neighbourhood</label>
               </div>
             </form>
           </div>
           <div className="mdl-card__actions mdl-card--border">
             <a className="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised" id="form-submit" onClick={this.handleSave} disabled>
-              Sign me up!
+              Submit
             </a>
-            <p>
-
-            <div id="progress" className="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
-            </p>
-
+            <div className="progress-container">
+              <div id="progress" className="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+            </div>
             <p className="form-message" id="form-ok">
               <code >Ok, We will keep you posted</code>
             </p>
@@ -258,16 +290,19 @@ var App = React.createClass({
 
       if (allCards.length > 0) {
         return (
-          <div className="mdl-grid">
 
-          {allCards.map(function(entry){
-            return <MapCard position={posi} zoom="14" title={entry.title} subtitle={entry.subtitle} airData={entry.data} stations={entry.stations}/>
+          <div className="mdl-grid">
+            {/*<p className="progress-container">
+              <div id="progress" className="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+            </p>*/}
+            {allCards.map(function(entry){
+              return <MapCard position={posi} zoom="10" title={entry.title} subtitle={entry.subtitle} airData={entry.data} stations={entry.stations}/>
             })}
           </div>
         );
       } else {
         return (
-            <div className='mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop'>
+            <div className='mdl-card mdl-cell mdl-cell--6-col'>
               <div className='mdl-card__title mdl-color-text--blue-grey'>
                 <strong>No air quality data available</strong>
               </div>

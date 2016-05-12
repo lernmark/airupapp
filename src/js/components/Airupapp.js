@@ -26,7 +26,9 @@ var Airupapp = React.createClass({
 
   getInitialState: function() {
     //TODO: Här bör min nuvarande location beräknas. Inte i Card
-    AppActions.insertInfoCard("The air, Where I live, What is it like?", "");
+    AppActions.insertMapCard('Färgfabriken', '', '59.314924,18.019890');
+    AppActions.insertInfoCard("What is the air quality like where I live?", "");
+
     return getAppState();
   },
 
@@ -49,7 +51,7 @@ var Airupapp = React.createClass({
               <div className="mdl-layout-spacer"></div>
             </div>
           </header>
-          <Navigation />
+          {/*<Navigation />*/}
 
           <main className="mdl-layout__content" id="airup-map">
           <MainSection allCards={this.state.allCards} />

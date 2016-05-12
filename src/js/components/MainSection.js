@@ -31,6 +31,7 @@ var MainSection = React.createClass({
 
     for (var key in allCards) {
       cards.unshift(<Card key={key} card={allCards[key]} />);
+      //cards.push(<Card key={key} card={allCards[key]} />);
     }
     return (
       <div>{cards}</div>

@@ -15,6 +15,7 @@ var _cards = {};
  */
 function createMap(coords, title,  text) {
   //var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+  _cards = {};
   _cards[coords] = {
     id: coords,
     type: "map",

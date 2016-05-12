@@ -37,8 +37,6 @@ var AppActions = {
   },
 
   submitSignup: function(formData) {
-    console.log("AppAction: ", formData);
-
     AppDispatcher.dispatch({
       actionType: AppConstants.SAVE_SIGNUP,
       formData: formData

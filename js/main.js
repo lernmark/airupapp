@@ -18971,8 +18971,6 @@ var AppActions = {
   },
 
   submitSignup: function(formData) {
-    console.log("AppAction: ", formData);
-
     AppDispatcher.dispatch({
       actionType: AppConstants.SAVE_SIGNUP,
       formData: formData
@@ -19012,7 +19010,9 @@ var Airupapp = React.createClass({displayName: 'Airupapp',
 
   getInitialState: function() {
     //TODO: Här bör min nuvarande location beräknas. Inte i Card
-    AppActions.insertInfoCard("The air, Where I live, What is it like?", "");
+    AppActions.insertMapCard('Färgfabriken', '', '59.314924,18.019890');
+    AppActions.insertInfoCard("What is the air quality like where I live?", "");
+
     return getAppState();
   },
 
@@ -19035,7 +19035,7 @@ var Airupapp = React.createClass({displayName: 'Airupapp',
               React.DOM.div({className: "mdl-layout-spacer"})
             )
           ), 
-          Navigation(null), 
+          /*<Navigation />*/
 
           React.DOM.main({className: "mdl-layout__content", id: "airup-map"}, 
           MainSection({allCards: this.state.allCards})
@@ -19104,7 +19104,7 @@ var MapCard = React.createClass({
 
   render: function() {
     return (
-      React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop"}, 
+      React.DOM.div({className: "mdl-card mdl-cell mdl-cell--12-col"}, 
         React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey-800"}, 
           React.DOM.h6(null, React.DOM.strong(null, this.props.title), React.DOM.span(null, ", "), React.DOM.span(null, this.props.subtitle))
         ), 
@@ -19112,7 +19112,7 @@ var MapCard = React.createClass({
         React.DOM.strong(null, "Index: "), Math.round(this.props.airData.index), " ", React.DOM.em(null, "(", aqiLabel(this.props.airData.index), ")")
 
         ), 
-        Card({position: this.props.position, zoom: "14", title: this.props.title, subtitle: this.props.subtitle, airData: this.props.data, stations: this.props.stations}), 
+        Card({position: this.props.position, zoom: "5", title: this.props.title, subtitle: this.props.subtitle, airData: this.props.data, stations: this.props.stations}), 
         React.DOM.div({className: "mdl-card__menu"}, 
           React.DOM.button({className: "mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color-text--grey-400", onClick: this.removeCard.bind(this, this.props.position)}, 
             React.DOM.i({className: "material-icons"}, "close")
@@ -19147,6 +19147,44 @@ var Card = React.createClass({
     var lon = coords.split(",")[1];
     var lat = coords.split(",")[0];
 
+
+
+    var apiUrl = "https://airupdata.appspot.com/_ah/api/airup/v1/rawdata";
+    //var apiUrl = "//localhost:8080/_ah/api/airup/v1/rawdata?offset=0";
+
+    loadRawData(apiUrl + "?offset=0");
+    loadRawData(apiUrl + "?offset=1");
+    loadRawData(apiUrl + "?offset=2");
+    loadRawData(apiUrl + "?offset=3");
+
+    function loadRawData(apiUrl) {
+      $(".mdl-progress").show();
+      $.getJSON( apiUrl, function( data ) {
+        var items = [];
+
+        $.each( data.records, function( key, station ) {
+
+        //   items.push( "<li id='" + key + "'>" + val + "</li>" );
+          //$(".mdl-progress").show();
+          var slon = parseFloat(station.position.split(",")[1]);
+          var slat = parseFloat(station.position.split(",")[0]);
+
+          //console.log(slon, slat, station.sourceId);
+          L.marker([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)]).addTo(map)
+              .bindPopup(station.positionLabels + "<br/>Air quality index: <strong>" + station.index + "</strong>")
+              .openPopup();
+        });
+      }).done(function() {
+        console.log( "second success" );
+        $(".mdl-progress").hide();
+      })
+      .fail(function() {
+        console.log( "error" );
+        $(".mdl-progress").hide();
+      });
+    }
+
+
     for (s in stations) {
       var station = stations[s];
       var slon = parseFloat(station.position.split(",")[1]);
@@ -19155,6 +19193,7 @@ var Card = React.createClass({
           .bindPopup(station.sourceId)
           .openPopup();
     }
+
     if (lat !== "undefined") {
       this.map.setView([lat, lon], zoom);
     }
@@ -19202,12 +19241,13 @@ var App = React.createClass({displayName: 'App',
       } else if (type === "map") {
         var lat = this.props.card.coords.split(",")[0];
         var lng = this.props.card.coords.split(",")[1];
-
+        $(".mdl-progress").show();
         var airApi = "https://airupdata.appspot.com/_ah/api/airup/v1/location/lat/" + lat + "/lng/" + lng + "";
         $.ajax({
           url: airApi,
           success: function(data) {
             if (this.isMounted()) {
+              $(".mdl-progress").hide();
               this.setState({
                 lat:lat,
                 lng:lng,
@@ -19223,7 +19263,7 @@ var App = React.createClass({displayName: 'App',
   },
   handleChange: function(event) {
     formDataObj[event.target.id] = event.target.value;
-    if (formDataObj.fullname === "" || formDataObj.email === "" || formDataObj.neighbourhood === "") {
+    if (formDataObj.neighbourhood === "") {
       $("#form-submit").attr('disabled', 'disabled');
 
     } else {
@@ -19235,7 +19275,7 @@ var App = React.createClass({displayName: 'App',
   handleSave: function(event) {
 
 
-    if (formDataObj.fullname === "" || formDataObj.email === "" || formDataObj.neighbourhood === "") {
+    if (formDataObj.neighbourhood === "") {
 
       console.log("Enter values in all fields.");
     } else {
@@ -19265,44 +19305,36 @@ var App = React.createClass({displayName: 'App',
       );
     } else if (type === "info") {
       return (
-        React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop"}, 
+        React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col"}, 
           React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"}, 
-            /*<strong>{title}</strong>*/
-            React.DOM.strong(null, "The air ", React.DOM.br(null), "Where I live", React.DOM.br(null), "What is it like?")
-
+            React.DOM.strong(null, "What is the air quality like where I live?")
           ), 
           React.DOM.div({className: "mdl-card__supporting-text"}, 
             text
           ), 
           React.DOM.div({className: "mdl-card__supporting-text"}, 
-
             React.DOM.form({action: "#"}, 
-
+            React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
+              React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.neighbourhood, onChange: this.handleChange, id: "neighbourhood", required: true}), 
+              React.DOM.label({className: "mdl-textfield__label", for: "neighbourhood"}, "My neighbourhood")
+            ), 
               React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
-                React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.fullname, onChange: this.handleChange, id: "fullname", required: true}), 
+                React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.fullname, onChange: this.handleChange, id: "fullname"}), 
                 React.DOM.label({className: "mdl-textfield__label", for: "fullname"}, "Name")
               ), 
-
               React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
-                React.DOM.input({className: "mdl-textfield__input", type: "email", value: this.state.email, onChange: this.handleChange, id: "email", required: true}), 
+                React.DOM.input({className: "mdl-textfield__input", type: "email", value: this.state.email, onChange: this.handleChange, id: "email"}), 
                 React.DOM.label({className: "mdl-textfield__label", for: "email"}, "Email")
-              ), 
-
-              React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
-                React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.neighbourhood, onChange: this.handleChange, id: "neighbourhood", required: true}), 
-                React.DOM.label({className: "mdl-textfield__label", for: "neighbourhood"}, "Neighbourhood")
               )
             )
           ), 
           React.DOM.div({className: "mdl-card__actions mdl-card--border"}, 
             React.DOM.a({className: "mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised", id: "form-submit", onClick: this.handleSave, disabled: true}, 
-              "Sign me up!"
+              "Submit"
             ), 
-            React.DOM.p(null, 
-
-            React.DOM.div({id: "progress", className: "mdl-progress mdl-js-progress mdl-progress__indeterminate"})
+            React.DOM.div({className: "progress-container"}, 
+              React.DOM.div({id: "progress", className: "mdl-progress mdl-js-progress mdl-progress__indeterminate"})
             ), 
-
             React.DOM.p({className: "form-message", id: "form-ok"}, 
               React.DOM.code(null, "Ok, We will keep you posted")
             )
@@ -19318,16 +19350,19 @@ var App = React.createClass({displayName: 'App',
 
       if (allCards.length > 0) {
         return (
-          React.DOM.div({className: "mdl-grid"}, 
 
-          allCards.map(function(entry){
-            return MapCard({position: posi, zoom: "14", title: entry.title, subtitle: entry.subtitle, airData: entry.data, stations: entry.stations})
+          React.DOM.div({className: "mdl-grid"}, 
+            /*<p className="progress-container">
+              <div id="progress" className="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+            </p>*/
+            allCards.map(function(entry){
+              return MapCard({position: posi, zoom: "10", title: entry.title, subtitle: entry.subtitle, airData: entry.data, stations: entry.stations})
             })
           )
         );
       } else {
         return (
-            React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col mdl-cell--1-offset-tablet mdl-cell--3-offset-desktop"}, 
+            React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col"}, 
               React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"}, 
                 React.DOM.strong(null, "No air quality data available")
               ), 
@@ -19382,6 +19417,7 @@ var MainSection = React.createClass({displayName: 'MainSection',
 
     for (var key in allCards) {
       cards.unshift(Card({key: key, card: allCards[key]}));
+      //cards.push(<Card key={key} card={allCards[key]} />);
     }
     return (
       React.DOM.div(null, cards)
@@ -19405,8 +19441,13 @@ var Navigation = React.createClass({displayName: 'Navigation',
    */
 
    handleClick:function(link, e){
+     $("#form-ok").hide();
+     var layout = document.querySelector('.mdl-layout');
+     layout.MaterialLayout.toggleDrawer();
      if (link.type === "map") {
+
        AppActions.insertMapCard(link.title, link.test, link.position);
+       AppActions.insertInfoCard("What is the air quality like where I live?", "");
      } else {
        AppActions.insertInfoCard(link.title, link.text);
      }
@@ -19416,7 +19457,7 @@ var Navigation = React.createClass({displayName: 'Navigation',
    },
   render: function() {
     var allLinks = [
-      {"title":"The air, Where I live, What is it like?", "type":"info", "text":""},
+      //{"title":"What is the air quality like where I live?", "type":"info", "text":""},
       {"title":"Färgfabriken", "type":"map", "position":"59.314924,18.019890", "text":""},
       {"title":"Hornstull", "type":"map", "position":"59.315219,18.034122", "text":""},
       {"title":"Fredhäll", "type":"map", "position":"59.328909,18.002429", "text":""},
@@ -19511,6 +19552,7 @@ var _cards = {};
  */
 function createMap(coords, title,  text) {
   //var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
+  _cards = {};
   _cards[coords] = {
     id: coords,
     type: "map",
