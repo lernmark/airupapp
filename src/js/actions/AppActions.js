@@ -36,6 +36,16 @@ var AppActions = {
     });
   },
 
+
+  insertSignupInMap: function(latlng, title) {
+    //console.info("insertSignupInMap", latlng, title)
+    AppDispatcher.dispatch({
+      actionType: AppConstants.ADD_PIN,
+      title: title,
+      latlng: latlng
+    });
+  },
+
   submitSignup: function(formData) {
     AppDispatcher.dispatch({
       actionType: AppConstants.SAVE_SIGNUP,

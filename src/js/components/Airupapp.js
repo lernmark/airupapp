@@ -9,7 +9,6 @@ var AppStore = require('../stores/AppStore');
 
 
 function showError() {
-  console.log("Show error");
   $(".mdl-progress").hide();
   return {
     formError:true
@@ -18,14 +17,18 @@ function showError() {
 
 function getAppState() {
   return {
-    allCards: AppStore.getAll()
+    allCards: AppStore.getAll(),
+    allPins: AppStore.getAllPins()
   };
 }
+
+
 
 var Airupapp = React.createClass({
 
   getInitialState: function() {
     //TODO: Här bör min nuvarande location beräknas. Inte i Card
+
     AppActions.insertMapCard('Färgfabriken', '', '59.314924,18.019890');
     AppActions.insertInfoCard("What is the air quality like where I live?", "");
 
@@ -35,6 +38,7 @@ var Airupapp = React.createClass({
   componentDidMount: function() {
     AppStore.addChangeListener(this._onChange);
     AppStore.addErrorListener(this._onError);
+
   },
   componentWillUnmount: function() {
     AppStore.removeChangeListener(this._onChange);

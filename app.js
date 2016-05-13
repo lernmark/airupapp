@@ -35,6 +35,27 @@ var dataset = gcloud.datastore({
   projectId: "airup-app"
 });
 
+app.get('/signups', function(req, res, next) {
+  // Query the last 10 visits from the datastore.
+
+  var query = dataset.createQuery('signup').limit(100);
+  dataset.runQuery(query, function(err, entities) {
+    if (err) { return next(err); }
+
+    var signups = entities.map(function(entity) {
+      return {
+        "timestamp":entity.data.timestamp,
+        "email":entity.data.email,
+        "fullname":entity.data.fullname,
+        "latlng":entity.data.latlng,
+        "neighbourhood":entity.data.neighbourhood
+      };
+    });
+
+    res.set('Content-Type', 'application/json');
+    res.status(200).send(signups);
+  });
+});
 
 app.post('/signup', function(req, res, next) {
   var hash = crypto.createHash('sha256');
@@ -45,8 +66,10 @@ app.post('/signup', function(req, res, next) {
       timestamp: new Date(),
       fullname: req.body.fullname,
       email:req.body.email,
+      latlng:req.body.latlng,
       neighbourhood: req.body.neighbourhood,
       userIp: hash.update(req.ip).digest('hex').substr(0, 7)
+
     }
   }, function(err) {
     if (err) { return next(err); }

@@ -8,6 +8,7 @@ var assign = require('object-assign');
 var CHANGE_EVENT = 'change';
 var ERROR_EVENT = 'error';
 var _cards = {};
+var _pins = {};
 
 /**
  * Create a CARD item.
@@ -22,6 +23,16 @@ function createMap(coords, title,  text) {
     title:title,
     coords: coords,
     text: text
+  };
+}
+
+
+function addPin(latlng, neighbourhood) {
+  //console.info("ADD PIN", latlng, neighbourhood);
+  _pins[latlng] = {
+    id: latlng,
+    neighbourhood:neighbourhood,
+    latlng: latlng
   };
 }
 
@@ -47,10 +58,9 @@ var AppStore = assign({}, EventEmitter.prototype, {
 
   getAll: function() {
     return _cards;
-    // return [{
-    //   coords:"59.311758,18.066317",
-    //   text:"Hornstull"
-    // }];
+  },
+  getAllPins: function() {
+    return _pins;
   },
   emitChange: function() {
     this.emit(CHANGE_EVENT);
@@ -92,6 +102,8 @@ AppDispatcher.register(function(payload){
       $.post( "/signup", payload.formData).done(function( data ) {
         $(".mdl-progress").hide();
         $("#form-ok").show();
+        //console.debug("payload.formData",payload.formData);
+        addPin(payload.formData.latlng, payload.formData.neighbourhood);
         AppStore.emitChange();
       }).fail(function() {
         console.log( "error" );
@@ -102,6 +114,15 @@ AppDispatcher.register(function(payload){
       var title = payload.title;
       if (title !== '') {
         removeCard(title);
+        AppStore.emitChange();
+      }
+      break;
+    case AppConstants.ADD_PIN:
+      //console.info("Store", payload);
+      var title = payload.title;
+      var latlng = payload.latlng;
+      if (title !== '') {
+        //removeCard(title);
         AppStore.emitChange();
       }
       break;

@@ -4,11 +4,62 @@ var React = require('react');
 var AppActions = require('../actions/AppActions');
 var AppStore = require('../stores/AppStore');
 var map;
+var latlng = "";
+var formatted_address = "";
 var formDataObj = {
   'fullname':'',
   'email':'',
-  'neighbourhood':''
+  'neighbourhood':'',
+  'latlng':''
 };
+
+// Some google stuff:
+function initialize(t) {
+  // Create the autocomplete object, restricting the search
+  // to geographical location types.
+  autocomplete = new google.maps.places.Autocomplete(
+    /** @type {HTMLInputElement} */
+    (document.getElementById('neighbourhood')), {
+      types: ['geocode']
+    });
+  // When the user selects an address from the dropdown,
+  // populate the address fields in the form.
+  google.maps.event.addListener(autocomplete, 'place_changed', function() {
+    fillInAddress(t);
+  });
+}
+
+// [START region_fillform]
+function fillInAddress(t) {
+    // Get the place details from the autocomplete object.
+    var place = autocomplete.getPlace();
+
+    //$("#mapUrl").attr("href", place.url).show();
+    var lat = place.geometry.location.lat();
+    var lng = place.geometry.location.lng();
+    latlng = lat+","+lng;
+    formatted_address = place.formatted_address;
+
+  }
+  // [END region_fillform]
+
+// [START region_geolocation]
+// Bias the autocomplete object to the user's geographical location,
+// as supplied by the browser's 'navigator.geolocation' object.
+function geolocate() {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var geolocation = new google.maps.LatLng(
+          position.coords.latitude, position.coords.longitude);
+        var circle = new google.maps.Circle({
+          center: geolocation,
+          radius: position.coords.accuracy
+        });
+        autocomplete.setBounds(circle.getBounds());
+      });
+    }
+  }
+  // [END region_geolocation]
 
 var aqiLabel = function(aqi) {
   var tempValue = "Good";
@@ -94,6 +145,7 @@ var Card = React.createClass({
     loadRawData(apiUrl + "?offset=1");
     loadRawData(apiUrl + "?offset=2");
     loadRawData(apiUrl + "?offset=3");
+    loadSignupData();
 
     function getColor(index) {
       var color = "";
@@ -108,7 +160,30 @@ var Card = React.createClass({
       }
       return color;
     }
-    
+
+    function loadSignupData() {
+      $(".mdl-progress").show();
+      $.getJSON( "/signups", function( data ) {
+
+        $.each( data, function( key, signup ) {
+          if (signup.latlng !== undefined) {
+            var slon = parseFloat(signup.latlng.split(",")[1]);
+            var slat = parseFloat(signup.latlng.split(",")[0]);
+            L.marker([slat,slon]).addTo(map)
+            .bindPopup(signup.neighbourhood)
+            .openPopup();
+          }
+
+        });
+      }).done(function() {
+        $(".mdl-progress").hide();
+        })
+      .fail(function() {
+        console.log( "error" );
+        $(".mdl-progress").hide();
+      });
+    }
+
     function loadRawData(apiUrl) {
       $(".mdl-progress").show();
       $.getJSON( apiUrl, function( data ) {
@@ -121,21 +196,28 @@ var Card = React.createClass({
           var slon = parseFloat(station.position.split(",")[1]);
           var slat = parseFloat(station.position.split(",")[0]);
 
-          //console.log(slon, slat, station.sourceId);
-          L.circle([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)], 500, {
-              color: getColor(station.index),
-              fillColor: getColor(station.index),
-              fillOpacity: 0.3
-          }).addTo(map).bindPopup(station.positionLabels + "<br/>Air quality index: <strong>" + station.index + "</strong>").openPopup();
-
-
+          var sizeVariation = (parseInt((''+key).slice(-1)+'0'));
+          //console.log(sizeVariation, slon, slat, station.pm10, station.co, key);
+          if (station.pm10 !== undefined) {
+            L.circle([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)], (400+sizeVariation), {
+                color: getColor(station.pm10),
+                fillColor: getColor(station.pm10),
+                fillOpacity: 0.3
+            }).addTo(map).bindPopup(station.positionLabels + "<br/><strong>PM10: </strong>" + station.pm10).openPopup();
+          }
+          if (station.pm25 !== undefined) {
+            L.circle([slat,slon], (400+sizeVariation), {
+                color: getColor(station.pm25),
+                fillColor: getColor(station.pm25),
+                fillOpacity: 0.3
+            }).addTo(map).bindPopup(station.positionLabels + "<br/><strong>PM2.5: </strong>" + station.pm25).openPopup();
+          }
         });
       }).done(function() {
-        console.log( "second success" );
         $(".mdl-progress").hide();
         if (lat !== "undefined") {
           map.setView([lat, lon], zoom);
-        }        
+        }
       })
       .fail(function() {
         console.log( "error" );
@@ -146,7 +228,6 @@ var Card = React.createClass({
 
     for (s in stations) {
       var station = stations[s];
-      console.log(station);
       var slon = parseFloat(station.position.split(",")[1]);
       var slat = parseFloat(station.position.split(",")[0]);
 
@@ -154,8 +235,8 @@ var Card = React.createClass({
           color: getColor(station.index),
           fillColor: getColor(station.index),
           fillOpacity: 0.3
-      }).addTo(map);      
-      
+      }).addTo(map);
+
     }
 
     if (lat !== "undefined") {
@@ -224,6 +305,8 @@ var App = React.createClass({
           }.bind(this),
         });
       }
+
+      initialize(this);
   },
   handleChange: function(event) {
     formDataObj[event.target.id] = event.target.value;
@@ -233,6 +316,7 @@ var App = React.createClass({
     } else {
       $("#form-submit").removeAttr('disabled');
     }
+
     this.setState({formdata: formDataObj});
   },
 
@@ -243,12 +327,13 @@ var App = React.createClass({
 
       console.log("Enter values in all fields.");
     } else {
-      AppActions.submitSignup(this.state.formdata);
-      // $(".mdl-progress").show();
-      // $.post( "/signup", this.state.formdata).done(function( data ) {
-      //   $(".mdl-progress").hide();
-      //   $("#form-ok").show();
-      // });
+      formDataObj.latlng = latlng;
+      formDataObj.neighbourhood = formatted_address;
+
+      this.setState({formdata: formDataObj});
+
+      //AppActions.submitSignup(this.state.formdata);
+      AppActions.insertSignupInMap(latlng,formatted_address);
     }
 
   },
@@ -269,7 +354,7 @@ var App = React.createClass({
       );
     } else if (type === "info") {
       return (
-        <div className='mdl-card mdl-cell mdl-cell--6-col'>
+        <div className='mdl-card mdl-cell mdl-cell--5-col'>
           <div className='mdl-card__title mdl-color-text--blue-grey'>
             <strong>What is the air quality like where I live?</strong>
           </div>
@@ -279,7 +364,7 @@ var App = React.createClass({
           <div className="mdl-card__supporting-text">
             <form action="#">
             <div className="mdl-textfield mdl-js-textfield">
-              <input className="mdl-textfield__input" type="text" value={this.state.neighbourhood} onChange={this.handleChange} id="neighbourhood" required/>
+              <input className="mdl-textfield__input" type="text" value={this.state.neighbourhood} onChange={this.handleChange} id="neighbourhood" placeholder="Neighbourhood" required/>
               <label className="mdl-textfield__label" for="neighbourhood">My neighbourhood</label>
             </div>
               <div className="mdl-textfield mdl-js-textfield">
