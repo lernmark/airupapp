@@ -376,7 +376,7 @@ module.exports.Dispatcher = require('./lib/Dispatcher');
  * of patent rights can be found in the PATENTS file in the same directory.
  *
  * @providesModule Dispatcher
- * 
+ *
  * @preventMunge
  */
 
@@ -19040,18 +19040,18 @@ var Airupapp = React.createClass({displayName: 'Airupapp',
   },
   render: function() {
     return (
-      React.DOM.div({className: "mdl-layout mdl-js-layout mdl-layout--fixed-header"}, 
-          React.DOM.header({className: "mdl-layout__header mdl-layout__header--waterfall"}, 
-            React.DOM.div({className: "mdl-layout__header-row"}, 
-              React.DOM.span({className: "mdl-layout-title"}, 
+      React.DOM.div({className: "mdl-layout mdl-js-layout mdl-layout--fixed-header"},
+          React.DOM.header({className: "mdl-layout__header mdl-layout__header--waterfall"},
+            React.DOM.div({className: "mdl-layout__header-row"},
+              React.DOM.span({className: "mdl-layout-title"},
                   "Airup"
-                ), 
+                ),
               React.DOM.div({className: "mdl-layout-spacer"})
             )
-          ), 
+          ),
           /*<Navigation />*/
 
-          React.DOM.main({className: "mdl-layout__content", id: "airup-map"}, 
+          React.DOM.main({className: "mdl-layout__content", id: "airup-map"},
           MainSection({allCards: this.state.allCards})
           )
 
@@ -19169,20 +19169,19 @@ var MapCard = React.createClass({
 
   render: function() {
     return (
-      React.DOM.div({className: "mdl-card mdl-cell mdl-cell--12-col"}, 
-        React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey-800"}, 
-          React.DOM.h6(null, React.DOM.strong(null, this.props.title), React.DOM.span(null, ", "), React.DOM.span(null, this.props.subtitle))
-        ), 
-        React.DOM.div({className: "mdl-card__supporting-text"}, 
-        React.DOM.strong(null, "Index: "), Math.round(this.props.airData.index), " ", React.DOM.em(null, "(", aqiLabel(this.props.airData.index), ")")
-
-        ), 
-        Card({position: this.props.position, zoom: "5", title: this.props.title, subtitle: this.props.subtitle, airData: this.props.data, stations: this.props.stations}), 
-        React.DOM.div({className: "mdl-card__menu"}, 
-          React.DOM.button({className: "mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color-text--grey-400", onClick: this.removeCard.bind(this, this.props.position)}, 
-            React.DOM.i({className: "material-icons"}, "close")
-          )
-        )
+      React.DOM.div({className: "mdl-card mdl-cell mdl-cell--12-col"},
+        /*<div className='mdl-card__title mdl-color-text--blue-grey-800'>
+          <h6><strong>{this.props.title}</strong><span>,&nbsp;</span><span>{this.props.subtitle}</span></h6>
+        </div>
+        <div className="mdl-card__supporting-text" >
+          <strong>Index: </strong>{Math.round(this.props.airData.index)} <em>({aqiLabel(this.props.airData.index)})</em>
+        </div>*/
+        Card({position: this.props.position, zoom: "5", title: this.props.title, subtitle: this.props.subtitle, airData: this.props.data, stations: this.props.stations})
+        /*<div className="mdl-card__menu">
+          <button className="mdl-button mdl-button--icon mdl-js-button mdl-js-ripple-effect mdl-color-text--grey-400" onClick={this.removeCard.bind(this, this.props.position)}>
+            <i className="material-icons">close</i>
+          </button>
+        </div>*/
       )
     )
   }
@@ -19195,6 +19194,7 @@ var Card = React.createClass({
     L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="http://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+    window.lMap = map;
     return map;
   },
 
@@ -19212,14 +19212,13 @@ var Card = React.createClass({
     var lon = coords.split(",")[1];
     var lat = coords.split(",")[0];
 
-    var apiUrl = "https://airupdata.appspot.com/_ah/api/airup/v1/rawdata";
+    var apiUrl = "https://airupdata.appspot.com/_ah/api/airup/v1/rawdata?offset=";
     //var apiUrl = "//localhost:8080/_ah/api/airup/v1/rawdata?offset=0";
+    var dataObject = {};
+    var dataIterations = 10;
 
-    loadRawData(apiUrl + "?offset=0");
-    loadRawData(apiUrl + "?offset=1");
-    loadRawData(apiUrl + "?offset=2");
-    loadRawData(apiUrl + "?offset=3");
     loadSignupData();
+    loadRawData(apiUrl);
 
     function getColor(index) {
       var color = "";
@@ -19235,70 +19234,83 @@ var Card = React.createClass({
       return color;
     }
 
+    function loadRawData(apiUrl) {
+      $(".mdl-progress").show();
+      $.getJSON( apiUrl + dataIterations, function( data ) {
+        $.each( data.records, function( key, station ) {
+          dataObject[station.sourceId] = station;
+        });
+      }).done(function(data) {
+        dataIterations = dataIterations - 1;
+        if (dataIterations >= 0 ) {
+          //console.debug("ITER", dataIterations);
+          loadRawData(apiUrl)
+        } else {
+          // Generate circles on the map since the data is loaded.
+          var markerArray = [];
+          for (s in dataObject) {
+            var station = dataObject[s];
+            var slon = parseFloat(station.position.split(",")[1]);
+            var slat = parseFloat(station.position.split(",")[0]);
+
+            if (station.pm25 != undefined) {
+              var markerPm25 = L.circle([slat,slon], (400), {
+                  color: getColor(station.pm25),
+                  fillColor: getColor(station.pm25),
+                  fillOpacity: 0.3
+              });
+              markerPm25.bindLabel(station.positionLabels + "<br/><strong>PM2.5: </strong>" + station.pm25, { noHide: false });
+              markerArray.push(markerPm25);
+            }
+
+            if (station.pm10 != undefined) {
+              var markerPm10 = L.circle([slat,slon], (400), {
+                  color: getColor(station.pm10),
+                  fillColor: getColor(station.pm10),
+                  fillOpacity: 0.3
+              });
+              markerPm10.bindLabel(station.positionLabels + "<br/><strong>PM10: </strong>" + station.pm10, { noHide: false });
+              markerArray.push(markerPm10);
+            }
+          }
+          if (markerArray.length > 0) {
+            var group = L.featureGroup(markerArray).addTo(map);
+            map.fitBounds(group.getBounds());
+          }
+
+          $(".mdl-progress").hide();
+
+        }
+      })
+      .fail(function() {
+        console.error( "error... Failed to load raw data" );
+        $(".mdl-progress").hide();
+      });
+    }
+
+
     function loadSignupData() {
       $(".mdl-progress").show();
-      $.getJSON( "/signups", function( data ) {
-
+      $.getJSON( "//airup-app.appspot.com/signups", function( data ) {
+        $(".mdl-progress").show();
+        var markerArray = [];
         $.each( data, function( key, signup ) {
           if (signup.latlng !== undefined) {
             var slon = parseFloat(signup.latlng.split(",")[1]);
             var slat = parseFloat(signup.latlng.split(",")[0]);
-            L.marker([slat,slon]).addTo(map)
-            .bindPopup(signup.neighbourhood)
-            .openPopup();
+            var marker = L.marker([slat,slon]).bindPopup(signup.neighbourhood).openPopup();
+            markerArray.push(marker);
           }
-
         });
+        var group = L.featureGroup(markerArray).addTo(map);
+        map.fitBounds(group.getBounds());
       }).done(function() {
         $(".mdl-progress").hide();
-        })
-      .fail(function() {
-        console.log( "error" );
+      }).fail(function() {
+        console.error( "error loading signup data" );
         $(".mdl-progress").hide();
       });
     }
-
-    function loadRawData(apiUrl) {
-      $(".mdl-progress").show();
-      $.getJSON( apiUrl, function( data ) {
-        var items = [];
-
-        $.each( data.records, function( key, station ) {
-
-        //   items.push( "<li id='" + key + "'>" + val + "</li>" );
-          //$(".mdl-progress").show();
-          var slon = parseFloat(station.position.split(",")[1]);
-          var slat = parseFloat(station.position.split(",")[0]);
-
-          var sizeVariation = (parseInt((''+key).slice(-1)+'0'));
-          //console.log(sizeVariation, slon, slat, station.pm10, station.co, key);
-          if (station.pm10 !== undefined) {
-            L.circle([(Math.round(slat * 100)/100),(Math.round(slon * 100)/100)], (400+sizeVariation), {
-                color: getColor(station.pm10),
-                fillColor: getColor(station.pm10),
-                fillOpacity: 0.3
-            }).addTo(map).bindPopup(station.positionLabels + "<br/><strong>PM10: </strong>" + station.pm10).openPopup();
-          }
-          if (station.pm25 !== undefined) {
-            L.circle([slat,slon], (400+sizeVariation), {
-                color: getColor(station.pm25),
-                fillColor: getColor(station.pm25),
-                fillOpacity: 0.3
-            }).addTo(map).bindPopup(station.positionLabels + "<br/><strong>PM2.5: </strong>" + station.pm25).openPopup();
-          }
-        });
-      }).done(function() {
-        $(".mdl-progress").hide();
-        if (lat !== "undefined") {
-          map.setView([lat, lon], zoom);
-        }
-      })
-      .fail(function() {
-        console.log( "error" );
-        $(".mdl-progress").hide();
-      });
-    }
-
 
     for (s in stations) {
       var station = stations[s];
@@ -19313,9 +19325,9 @@ var Card = React.createClass({
 
     }
 
-    if (lat !== "undefined") {
-      this.map.setView([lat, lon], zoom);
-    }
+    // if (lat !== "undefined") {
+    //   this.map.setView([lat, lon], zoom);
+    // }
   },
 
   componentDidMount: function() {
@@ -19405,9 +19417,25 @@ var App = React.createClass({displayName: 'App',
       formDataObj.neighbourhood = formatted_address;
 
       this.setState({formdata: formDataObj});
+      if (latlng !== undefined) {
+        var slon = parseFloat(latlng.split(",")[1]);
+        var slat = parseFloat(latlng.split(",")[0]);
+        L.marker([slat,slon]).addTo(window.lMap)
+        .bindPopup(formatted_address)
+        .openPopup();
+        window.lMap.setView([slat, slon], 6);
+      }
 
-      //AppActions.submitSignup(this.state.formdata);
-      AppActions.insertSignupInMap(latlng,formatted_address);
+      setTimeout(function(){
+        $("#neighbourhood").val("");
+        $("#email").val("");
+        $("#fullname").val("");
+        $("#form-ok").slideUp();
+
+      }, 3000);
+
+      AppActions.submitSignup(this.state.formdata);
+      //AppActions.insertSignupInMap(latlng,formatted_address);
     }
 
   },
@@ -19428,37 +19456,37 @@ var App = React.createClass({displayName: 'App',
       );
     } else if (type === "info") {
       return (
-        React.DOM.div({className: "mdl-card mdl-cell mdl-cell--5-col"}, 
-          React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"}, 
+        React.DOM.div({className: "mdl-card mdl-cell mdl-cell--5-col"},
+          React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"},
             React.DOM.strong(null, "What is the air quality like where I live?")
-          ), 
-          React.DOM.div({className: "mdl-card__supporting-text"}, 
+          ),
+          React.DOM.div({className: "mdl-card__supporting-text"},
             text
-          ), 
-          React.DOM.div({className: "mdl-card__supporting-text"}, 
-            React.DOM.form({action: "#"}, 
-            React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
-              React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.neighbourhood, onChange: this.handleChange, id: "neighbourhood", placeholder: "Neighbourhood", required: true}), 
+          ),
+          React.DOM.div({className: "mdl-card__supporting-text"},
+            React.DOM.form({action: "#"},
+            React.DOM.div({className: "mdl-textfield mdl-js-textfield"},
+              React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.neighbourhood, onChange: this.handleChange, id: "neighbourhood", placeholder: "Neighbourhood", required: true}),
               React.DOM.label({className: "mdl-textfield__label", for: "neighbourhood"}, "My neighbourhood")
-            ), 
-              React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
-                React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.fullname, onChange: this.handleChange, id: "fullname"}), 
+            ),
+              React.DOM.div({className: "mdl-textfield mdl-js-textfield"},
+                React.DOM.input({className: "mdl-textfield__input", type: "text", value: this.state.fullname, onChange: this.handleChange, id: "fullname", placeholder: "Name"}),
                 React.DOM.label({className: "mdl-textfield__label", for: "fullname"}, "Name")
-              ), 
-              React.DOM.div({className: "mdl-textfield mdl-js-textfield"}, 
-                React.DOM.input({className: "mdl-textfield__input", type: "email", value: this.state.email, onChange: this.handleChange, id: "email"}), 
+              ),
+              React.DOM.div({className: "mdl-textfield mdl-js-textfield"},
+                React.DOM.input({className: "mdl-textfield__input", type: "email", value: this.state.email, onChange: this.handleChange, id: "email", placeholder: "Email"}),
                 React.DOM.label({className: "mdl-textfield__label", for: "email"}, "Email")
               )
             )
-          ), 
-          React.DOM.div({className: "mdl-card__actions mdl-card--border"}, 
-            React.DOM.a({className: "mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised", id: "form-submit", onClick: this.handleSave, disabled: true}, 
+          ),
+          React.DOM.div({className: "mdl-card__actions mdl-card--border"},
+            React.DOM.a({className: "mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised", id: "form-submit", onClick: this.handleSave, disabled: true},
               "Submit"
-            ), 
-            React.DOM.div({className: "progress-container"}, 
+            ),
+            React.DOM.div({className: "progress-container"},
               React.DOM.div({id: "progress", className: "mdl-progress mdl-js-progress mdl-progress__indeterminate"})
-            ), 
-            React.DOM.p({className: "form-message", id: "form-ok"}, 
+            ),
+            React.DOM.p({className: "form-message", id: "form-ok"},
               React.DOM.code(null, "Ok, We will keep you posted")
             )
           )
@@ -19474,7 +19502,7 @@ var App = React.createClass({displayName: 'App',
       if (allCards.length > 0) {
         return (
 
-          React.DOM.div({className: "mdl-grid"}, 
+          React.DOM.div({className: "mdl-grid"},
             /*<p className="progress-container">
               <div id="progress" className="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
             </p>*/
@@ -19485,10 +19513,10 @@ var App = React.createClass({displayName: 'App',
         );
       } else {
         return (
-            React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col"}, 
-              React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"}, 
+            React.DOM.div({className: "mdl-card mdl-cell mdl-cell--6-col"},
+              React.DOM.div({className: "mdl-card__title mdl-color-text--blue-grey"},
                 React.DOM.strong(null, "No air quality data available")
-              ), 
+              ),
 
               React.DOM.div({className: "mdl-card__supporting-text"}
 
@@ -19597,9 +19625,9 @@ var Navigation = React.createClass({displayName: 'Navigation',
     }
 
   	return (
-      React.DOM.div({className: "mdl-layout__drawer"}, 
-        React.DOM.h5({className: "mdl-layout-title"}, "About Airup"), 
-        React.DOM.nav({className: "mdl-navigation", id: "airup-navigation"}, 
+      React.DOM.div({className: "mdl-layout__drawer"},
+        React.DOM.h5({className: "mdl-layout-title"}, "About Airup"),
+        React.DOM.nav({className: "mdl-navigation", id: "airup-navigation"},
           links
         )
       )
@@ -19760,7 +19788,7 @@ AppDispatcher.register(function(payload){
     case AppConstants.SAVE_SIGNUP:
 
       $(".mdl-progress").show();
-      $.post( "/signup", payload.formData).done(function( data ) {
+      $.post( "//airup-app.appspot.com/signup", payload.formData).done(function( data ) {
         $(".mdl-progress").hide();
         $("#form-ok").show();
         //console.debug("payload.formData",payload.formData);

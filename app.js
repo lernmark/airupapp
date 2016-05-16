@@ -23,7 +23,11 @@ var app = express();
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 }));
-
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 //app.use(bodyParser.json());
 
 app.enable('trust proxy');
@@ -45,8 +49,8 @@ app.get('/signups', function(req, res, next) {
     var signups = entities.map(function(entity) {
       return {
         "timestamp":entity.data.timestamp,
-        "email":entity.data.email,
-        "fullname":entity.data.fullname,
+        // "email":entity.data.email,
+        // "fullname":entity.data.fullname,
         "latlng":entity.data.latlng,
         "neighbourhood":entity.data.neighbourhood
       };

@@ -99,7 +99,7 @@ AppDispatcher.register(function(payload){
     case AppConstants.SAVE_SIGNUP:
 
       $(".mdl-progress").show();
-      $.post( "/signup", payload.formData).done(function( data ) {
+      $.post( "//airup-app.appspot.com/signup", payload.formData).done(function( data ) {
         $(".mdl-progress").hide();
         $("#form-ok").show();
         //console.debug("payload.formData",payload.formData);
